@@ -1,0 +1,22 @@
+# Keil build outputs
+/Objects/
+/Listings/
+*.axf
+*.bin
+*.hex
+*.o
+*.obj
+*.d
+*.crf
+*.lst
+*.map
+*.htm
+*.lnp
+*.dep
+*.bak
+*.tmp
+
+# Local uVision settings and debug logs
+*.uvoptx
+*.uvguix.*
+JLinkLog.txt
