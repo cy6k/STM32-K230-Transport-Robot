@@ -909,6 +909,16 @@
               <FileType>5</FileType>
               <FilePath>.\Hardware\Serial.h</FilePath>
             </File>
+            <File>
+              <FileName>HWT101.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\HWT101.c</FilePath>
+            </File>
+            <File>
+              <FileName>HWT101.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\HWT101.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
