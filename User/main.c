@@ -11,7 +11,7 @@ char command;
 long number;
 uint32_t Time;
 void test(void);
-
+void test_run(void);
 
 int main(void)
 {
@@ -66,11 +66,135 @@ void test(void)
 			Serial_PrintInt(number);
 			Serial_Println();
 			break;
-
+			
 			case 'd':
 			HWT101_ReadAndPrint();
 			break;
-
+			
+			case 'e':
+			test_run();
+			break;
+			
 		}
 	}
 }
+
+
+
+void test_run()
+{
+	//出
+	Move_QH(2000);
+	Delay_ms(1500);
+	Move_ZY(2000);
+	Delay_ms(1500);
+	HWT101_ReadAndPrint();
+	
+	//到二维码
+	Move_Turn(4125);
+	Delay_ms(1800);
+	Move_QH(11500);
+	Delay_ms(3000);
+	HWT101_ReadAndPrint();
+	
+	//到原料区
+	Move_QH(11500);
+	Delay_ms(3000);
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	Move_QH(11500);
+	Delay_ms(3000);
+	HWT101_ReadAndPrint();
+	
+	//到暂存区
+	Move_QH(11500);
+	Delay_ms(3000);
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	Move_QH(11500);
+	Delay_ms(3000);
+	HWT101_ReadAndPrint();
+	
+	
+	//到粗加工区
+	Move_QH(11500);
+	Delay_ms(3000);
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	Move_QH(11500);
+	Delay_ms(3000);
+	HWT101_ReadAndPrint();
+	
+	//再到原料区
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	Move_QH(23000);
+	Delay_ms(4000);
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	HWT101_ReadAndPrint();
+	
+	
+	//再到暂存区
+	Move_QH(11500);
+	Delay_ms(3000);
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	Move_QH(11500);
+	Delay_ms(3000);
+	HWT101_ReadAndPrint();
+	
+	//再到粗加工区
+	Move_QH(11500);
+	Delay_ms(3000);
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	Move_QH(11500);
+	Delay_ms(3000);
+	HWT101_ReadAndPrint();
+	
+	//回
+	Move_QH(11500);
+	Delay_ms(3000);
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	Move_QH(23000);
+	Delay_ms(4000);
+	Move_Turn(-4125);
+	Delay_ms(1800);
+	Move_QH(-2000);
+	Delay_ms(1500);
+	Move_ZY(2000);
+	Delay_ms(1500);
+	HWT101_ReadAndPrint();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
