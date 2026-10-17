@@ -4,8 +4,8 @@
 #include "Delay.h"
 
 
-#define E_vel 1000
-#define E_acc 100
+#define E_vel 3000
+#define E_acc 150
 
 /*
  * 底盘坐标系模型：

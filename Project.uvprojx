@@ -860,6 +860,16 @@
           <GroupName>Hardware</GroupName>
           <Files>
             <File>
+              <FileName>tjc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\tjc.c</FilePath>
+            </File>
+            <File>
+              <FileName>tjc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\tjc.h</FilePath>
+            </File>
+            <File>
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Hardware\usart.c</FilePath>
@@ -918,6 +928,26 @@
               <FileName>HWT101.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Hardware\HWT101.h</FilePath>
+            </File>
+            <File>
+              <FileName>Arm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\Arm.c</FilePath>
+            </File>
+            <File>
+              <FileName>Arm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\Arm.h</FilePath>
+            </File>
+            <File>
+              <FileName>Servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\Servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>Servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\Servo.h</FilePath>
             </File>
           </Files>
         </Group>
