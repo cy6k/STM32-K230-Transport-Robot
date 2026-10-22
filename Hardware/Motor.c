@@ -5,7 +5,8 @@
 
 
 #define E_vel 3000
-#define E_acc 150
+#define E_acc 170
+
 
 /*
  * 底盘坐标系模型：
@@ -106,7 +107,7 @@ void Move_QH(long mcs)
 
 /**
   * 函    数：底盘左右（按本次相对位移同步运动）
-  * 参    数：mcs —— 本次左右位移(脉冲数)，正负即左右
+  * 参    数：mcs —— 本次左右位移(脉冲数)，正=左方，负=右方
   */
 void Move_ZY(long mcs)
 {
@@ -122,6 +123,80 @@ void Move_Turn(long mcs)
 {
 	Sync_By_Delta(0, 0, mcs);
 }
+
+
+
+
+
+
+/**
+  * 函    数：底盘右上斜向运动
+  * 参    数：mcs —— 前后、左右分量各自的脉冲数，正=指定方向，负=反方向
+  * 备    注：两轮位移为0，另两轮位移为2倍mcs；保持原有速度和加速度
+  */
+void Move_slant1(long mcs)
+{
+	Sync_By_Delta(mcs, mcs, 0);
+}
+
+
+/**
+  * 函    数：底盘右下斜向运动
+  * 参    数：mcs —— 前后、左右分量各自的脉冲数，正=指定方向，负=反方向
+  * 备    注：两轮位移为0，另两轮位移为2倍mcs；保持原有速度和加速度
+  */
+void Move_slant2(long mcs)
+{
+	Sync_By_Delta(-mcs, mcs, 0);
+}
+
+
+
+
+
+/* 保留原来的运动接口；_Td 只增加发令前检查和发令后到位等待。
+ * 零位移不重新发命令，仍检查四轮是否到位。
+ */
+static Motor_Td_Result_t Move_Wait_Td(void (*move)(long), long mcs, uint8_t changedMask)
+{
+    Motor_Td_Result_t result;
+    result = Motor_Td_Prepare(0x0F, mcs != 0 ? changedMask : 0);
+    if (result != MOTOR_TD_OK) return result;
+    if (mcs != 0) move(mcs);
+    return Motor_Td_Wait();
+}
+
+Motor_Td_Result_t Move_QH_Td(long mcs)
+{
+    return Move_Wait_Td(Move_QH, mcs, 0x0F);
+}
+
+Motor_Td_Result_t Move_ZY_Td(long mcs)
+{
+    return Move_Wait_Td(Move_ZY, mcs, 0x0F);
+}
+
+Motor_Td_Result_t Move_Turn_Td(long mcs)
+{
+    return Move_Wait_Td(Move_Turn, mcs, 0x0F);
+}
+
+Motor_Td_Result_t Move_slant1_Td(long mcs)
+{
+    /* 斜向运动两轮为2*mcs，防止32位long计算溢出。 */
+    if (mcs > 1073741823L || mcs < -1073741823L)
+        return MOTOR_TD_ARGUMENT_ERROR;
+    return Move_Wait_Td(Move_slant1, mcs, 0x0A);
+}
+
+Motor_Td_Result_t Move_slant2_Td(long mcs)
+{
+    if (mcs > 1073741823L || mcs < -1073741823L)
+        return MOTOR_TD_ARGUMENT_ERROR;
+    return Move_Wait_Td(Move_slant2, mcs, 0x05);
+}
+
+
 
 
 

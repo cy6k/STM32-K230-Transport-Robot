@@ -10,9 +10,9 @@
   *                第 11 字节 = 前 10 字节累加和的低 8 位
   *          模块上电即主动连续发送, 接收全程在 USART3 中断里用状态机完成, 不阻塞主循环。
   *
-  *          【上电自动清零】见 HWT101_ZERO_MODE 宏。默认 = 软件偏置法:
-  *          上电后等模块启动完成(约1s), 把那一刻的朝向记下来作为零点, 之后输出的
-  *          yaw 都是相对该朝向的角度 —— 起步时 Yaw 必定为 0, 走直矫正的目标角才正确。
+  *          上电基准：其他初始化完成后调用 HWT_Read_Angle()，等待角度稳定并记录零点。
+  *          每 200ms 采样一次，连续 10 次读数极差不超过 0.03 度时取平均值为零点。
+  *          后续角度接口统一返回原始角度减去该零点，控制函数无需再次补偿。
   ******************************************************************************
   */
 #ifndef __HWT101_H
@@ -35,10 +35,18 @@ typedef struct
 } HWT101_Data_t;
 
 void     HWT101_Init(void); /* 初始化 USART3 + PD8/PD9 + 接收中断 */
-void     HWT101_ReadAndPrint(void); /* Poll and print over USART1 */
-void     HWT101_ConfigPoll(void);             /* 放主循环里: 非阻塞地推进上电配置流程 */
-uint8_t  HWT101_ConfigBusy(void);             /* 1=上电配置(清零/设速率)还没跑完 */
+/* 初始化阶段阻塞采集并记录稳定零点；先初始化定时器和陀螺仪，保持车身静止。 */
+void     HWT_Read_Angle(void);
+void     HWT101_ReadAndPrint(void); /* 在主循环中调用，通过 USART1 打印陀螺仪数据。 */
+void     HWT101_ConfigPoll(void); /* 主程序轮询：完成模块配置和稳定角度基准采集。 */
+uint8_t  HWT101_ConfigBusy(void); /* 1=模块配置或角度基准尚未就绪；0=均已就绪。 */
+void     HWT101_ReferenceStart(void); /* 仅在主程序调用，其他初始化完成后开始采集基准。 */
+uint8_t  HWT101_ReferenceReady(void); /* 1=稳定角度基准已确认；0=尚未确认。 */
+float    HWT101_GetReference(void); /* 获取已确认的原始角度基准，单位为度。 */
 uint8_t  HWT101_Snapshot(HWT101_Data_t *out); /* 取一份最新数据快照(内部关中断保证原子性) */
+
+/* 收到过有效角度帧才返回 1；tick 为该帧接收时的 GetTick() 毫秒时间戳。 */
+uint8_t  HWT101_YawSnapshot(float *yaw, uint32_t *tick);
 
 void     HWT101_ZeroHere(void);               /* 把"当前朝向"设为 0 度(走直矫正前可随时重设) */
 void     HWT101_ClearZero(void);              /* 取消软件零点, 恢复模块的绝对朝向 */
@@ -50,5 +58,9 @@ uint32_t HWT101_GetCount(void);               /* 累计有效帧数 */
 uint8_t  HWT101_IsOnline(void);               /* 1=收到过有效帧, 0=一直没有 */
 
 extern volatile HWT101_Data_t g_hwt101;       /* 中断里写入, 一般请用上面的接口读取 */
+
+/* 以最短转向旋转并校准到相对上电零点的目标角度（-180～180度）。
+ * 内部先粗转再细调，每步等待四轮到位，允许误差为 ±0.1 度。 */
+void Adjust(float target_angle);
 
 #endif

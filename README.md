@@ -15,3 +15,15 @@
 ## 项目状态
 
 开发中。
+
+## 当前模块
+
+- 底盘运动控制与电机到位检测（`Motor`、`Motor_Td`）
+- 机械臂和舵机控制（`Arm`、`Servo`）
+- HWT101 陀螺仪数据采集与航向处理
+- K230 视觉模块串口通信与定位处理（`VisionSerial`、`Vision_work`）
+- 串口屏交互（`tjc`）
+- 路线和任务流程（`Work`）
+- 补光灯控制（`Light`）
+
+使用 Keil MDK 打开 `Project.uvprojx` 进行编译。`Objects/`、`Listings/` 等编译输出和本机 uVision 配置由 `.gitignore` 排除。

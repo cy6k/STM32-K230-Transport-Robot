@@ -4,14 +4,14 @@
 
 
 //三个电机加速度速度分别设置
-#define vel_1 3000
-#define acc_1 220
+#define vel_1 600
+#define acc_1 235
 
-#define vel_2 3000
-#define acc_2 235
+#define vel_2 600
+#define acc_2 250
 
-#define vel_3 3000
-#define acc_3 250
+#define vel_3 1000
+#define acc_3 255
 
 long dis_1=0;
 long dis_2=0;
@@ -87,3 +87,34 @@ void Arm_QH(long mcs)
 
 
 
+
+/* 仍调用原来的轴函数，保持速度、加速度、方向和软件坐标语义。 */
+static Motor_Td_Result_t Arm_Wait_Td(void (*move)(long), long mcs, long oldTarget, uint8_t addr)
+{
+    Motor_Td_Result_t result;
+    uint8_t mask = (uint8_t)(1U << (addr - 1U));
+    int64_t delta = (int64_t)mcs - (int64_t)oldTarget;
+
+    /* 原函数用32位long计算差值，先拒绝无法安全表示的输入。 */
+    if (delta > 2147483647LL || delta < -2147483647LL)
+        return MOTOR_TD_ARGUMENT_ERROR;
+    result = Motor_Td_Prepare(mask, mcs != oldTarget ? mask : 0);
+    if (result != MOTOR_TD_OK) return result;
+    if (mcs != oldTarget) move(mcs);
+    return Motor_Td_Wait();
+}
+
+Motor_Td_Result_t Arm_Turn_Td(long mcs)
+{
+    return Arm_Wait_Td(Arm_Turn, mcs, dis_1, 5);
+}
+
+Motor_Td_Result_t Arm_SX_Td(long mcs)
+{
+    return Arm_Wait_Td(Arm_SX, mcs, dis_2, 6);
+}
+
+Motor_Td_Result_t Arm_QH_Td(long mcs)
+{
+    return Arm_Wait_Td(Arm_QH, mcs, dis_3, 7);
+}

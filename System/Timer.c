@@ -12,6 +12,8 @@
 #include "misc.h"
 
 static volatile uint32_t g_ticks = 0;
+static uint16_t g_200ms_ticks = 0;
+volatile uint32_t Timer_200ms_Count = 0; // 每累计 200ms 加 1，供视觉模块读取
 
 void Timer_Init(void)
 {
@@ -46,6 +48,13 @@ void TIM6_DAC_IRQHandler(void)
     {
         TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
         g_ticks++;
+
+        // 保留系统 1ms 计时，同时为视觉提供 200ms 处理节拍。
+        if (++g_200ms_ticks >= 200U)
+        {
+            g_200ms_ticks = 0;
+            Timer_200ms_Count++;
+        }
     }
 }
 

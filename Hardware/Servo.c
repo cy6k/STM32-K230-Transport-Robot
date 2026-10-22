@@ -133,18 +133,6 @@ void Servo_Write(uint8_t angle)
 
 
 
-void grap()
-{
-	Servo_Write(1);
-}
-
-void put()
-{
-	Servo_Write(20);
-}
-
-
-
 
 
 

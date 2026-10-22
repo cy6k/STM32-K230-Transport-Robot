@@ -900,6 +900,16 @@
               <FilePath>.\Hardware\Emm_V5.h</FilePath>
             </File>
             <File>
+              <FileName>Motor_Td.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\Motor_Td.c</FilePath>
+            </File>
+            <File>
+              <FileName>Motor_Td.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\Motor_Td.h</FilePath>
+            </File>
+            <File>
               <FileName>Motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Hardware\Motor.c</FilePath>
@@ -948,6 +958,46 @@
               <FileName>Servo.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Hardware\Servo.h</FilePath>
+            </File>
+            <File>
+              <FileName>Work.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\Work.c</FilePath>
+            </File>
+            <File>
+              <FileName>Work.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\Work.h</FilePath>
+            </File>
+            <File>
+              <FileName>VisionSerial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\VisionSerial.c</FilePath>
+            </File>
+            <File>
+              <FileName>VisionSerial.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\VisionSerial.h</FilePath>
+            </File>
+            <File>
+              <FileName>Vision_work.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\Vision_work.c</FilePath>
+            </File>
+            <File>
+              <FileName>Vision_work.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\Vision_work.h</FilePath>
+            </File>
+            <File>
+              <FileName>Light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\Light.c</FilePath>
+            </File>
+            <File>
+              <FileName>Light.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\Light.h</FilePath>
             </File>
           </Files>
         </Group>

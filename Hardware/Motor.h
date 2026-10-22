@@ -1,6 +1,8 @@
 #ifndef __MOTOR_H
 #define __MOTOR_H
 
+#include "Motor_Td.h"
+
 
 // 4个电机使能
 void EC_Enable(void);
@@ -17,7 +19,23 @@ void Move_ZY(long mcs);
 void Move_Turn(long mcs);
 
 
+//45度斜向运动：mcs为前后、左右各自的位移分量；正数按注释方向，负数反向
+void Move_slant1(long mcs);    // 正时右上，负时左下
+void Move_slant2(long mcs);    // 正时右下，负时左上
 
+
+
+/* 阻塞到位检测版本：参数与原函数一致；成功返回 MOTOR_TD_OK。
+ * 需先初始化 TIM6/USART2，并保持中断开启；仅在主程序中调用。
+ * 底盘等待四轮均到位；失败时停止四轮，上层必须检查返回值。
+ */
+Motor_Td_Result_t Move_QH_Td(long mcs);
+Motor_Td_Result_t Move_ZY_Td(long mcs);
+Motor_Td_Result_t Move_Turn_Td(long mcs);
+Motor_Td_Result_t Move_slant1_Td(long mcs);
+Motor_Td_Result_t Move_slant2_Td(long mcs);
 
 
 #endif
+
+

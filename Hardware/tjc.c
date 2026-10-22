@@ -2,6 +2,7 @@
 #include "tjc.h"
 #include "usart.h"
 #include "Serial.h"
+#include "Delay.h"
 #include <stdio.h>
 
 
@@ -280,4 +281,34 @@ uint8_t TJC_ReceiveStartR1(void)
 uint8_t TJC_ReceiveStartR2(void)
 {
 	return TJC_CheckStartKey('R', 2);
+}
+
+
+
+/* 屏幕启动消息或调试串口发送 t，运行页面和地图测试（约 12 秒）。 */
+void TJC_Test(void)
+{
+	TJC_SetPage(1);                  /* 显示地图页 */
+	Delay_ms(2000);
+
+	TJC_UpdateObstacle(2, 3, 1);     /* 坐标(2,3)有障碍物，g32变黑 */
+	Delay_ms(2000);
+
+	TJC_UpdateObstacle(2, 3, 0);     /* 障碍物消失，恢复原色 */
+	Delay_ms(2000);
+
+	TJC_SetPage(2);                  /* 显示数据页 */
+	Delay_ms(2000);
+
+	TJC_Show_TaskCode("135+531+246+642");
+	Delay_ms(2000);
+
+	TJC_SetPage(3);                  /* 显示结束页 */
+	Delay_ms(2000);
+
+	TJC_ClearObstacles();            /* 清空障碍物记录 */
+
+	// 测试结束后回到 page0，等待下一次屏幕启动消息
+	TJC_SetPage(0);
+	Serial_PrintStr("Waiting: startL1 / startL2 / startR1 / startR2\r\n");
 }

@@ -43,4 +43,8 @@ uint8_t TJC_ReceiveStartR1(void);
 uint8_t TJC_ReceiveStartR2(void);
 
 
+
+/* 阻塞运行页面、障碍物和任务码显示测试，结束后返回首页。 */
+void TJC_Test(void);
+
 #endif

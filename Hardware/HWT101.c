@@ -6,12 +6,15 @@
   *          USART3_IRQHandler 里只做"收字节 + 状态机攒帧", 解析完一帧就地换算成
   *          角度/角速度写进全局变量, 主循环随时用 HWT101_GetYaw() 取即可。
   *
-  *          上电配置(清零 / 设输出频率)由 HWT101_ConfigPoll() 用时间轴推进,
-  *          全程非阻塞, 不会像 Delay_ms 那样卡住主循环和 OLED。
+  *          HWT101_ConfigPoll() 以非阻塞方式推进模块配置及稳定基准采集。
+  *          初始化阶段调用 HWT_Read_Angle()，阻塞等待角度稳定并记录零点。
   ******************************************************************************
   */
 #include "HWT101.h"
 #include "Serial.h"
+#include "Delay.h"
+#include "Motor.h"
+#include "Emm_V5.h"
 #include "Timer.h"		/* 用 GetTick() 做非阻塞计时 */
 
 /* ===================== 引脚 / 串口配置(要改就改这一段) ===================== */
@@ -31,16 +34,14 @@
    出厂默认 9600, 改成 115200 用 FF AA 04 06 00(需解锁+保存)。 */
 #define HWT101_BAUDRATE			115200
 
-/* ===================== 上电自动清零方式 =====================
- *  1 = 软件偏置法(默认, 推荐): 不碰模块, 只把上电时那个朝向记成 0 度。
- *      优点: 无通信风险, 立即生效, 不动模块里的设置, 可随时 HWT101_ZeroHere() 重设。
- *  2 = 模块级清零: 用官方 CALSW 寄存器把模块自己的航向角置 0。
- *      优点: 模块帧里发出来的 yaw 本身就是 0 起。
- *  0 = 不清零: 直接用模块保存的绝对朝向。
- *
- *  	无论哪种方式, 上电后到清零完成前(约 1.2s)车必须静止不动, 否则零点会带上初速度误差。
- * ======================================================== */
-#define HWT101_ZERO_MODE		1
+/* 上电角度基准：必须在 main 中其他初始化全部完成后开始采集。
+ * 每隔 200ms 取一次最新有效角度，保留最近连续 10 次读数。
+ * 这 10 次读数的最大值与最小值之差不超过 0.03 度时，取平均值作为固定零点。
+ * 后续所有角度读取接口统一返回“原始角度 - 固定零点”。
+ */
+#define HWT101_REF_INTERVAL_MS       200U
+#define HWT101_REF_SAMPLE_COUNT       10U
+#define HWT101_REF_MAX_SPAN         0.03f
 
 /* ===================== 上电配置流程 =====================
  * 官方寄存器说明(维特智能标准通信协议):
@@ -50,16 +51,6 @@
  * 注意: 改设置前要先发解锁指令 FF AA 69 88 B5, 否则模块会拒收(超过10秒未操作也会自动上锁)。
  * ==================================================== */
 #define HWT101_CFG_UNLOCK		{ 0xFF, 0xAA, 0x69, 0x88, 0xB5 }	/* 解锁寄存器 */
-#if   (HWT101_ZERO_MODE == 2)
-  #define HWT101_CFG_ZERO		{ 0xFF, 0xAA, 0x01, 0x04, 0x00 }	/* 航向角置零(官方 CALSW=0x04) */
-  #define HWT101_HAS_ZERO_CMD	1
-#else
-  /* 用不到清零指令, 这里故意留一条不会执行的无效指令, 万一被误发也只会让模块忽略 */
-  #define HWT101_CFG_ZERO		{ 0x00, 0x00, 0x00, 0x00, 0x00 }	/* 占位, 不会被发出 */
-  #define HWT101_HAS_ZERO_CMD	0
-#endif
-
-/* 输出频率配置: 1=上电时改成 100Hz, 0=不动模块里保存的频率 */
 #define HWT101_SET_RATE			1
 #define HWT101_CFG_RATE			{ 0xFF, 0xAA, 0x03, 0x09, 0x00 }	/* RRATE=0x09 -> 100Hz */
 
@@ -90,8 +81,16 @@ volatile HWT101_Data_t g_hwt101 = { 0.0f, 0.0f, 0u, 0u };
 
 /* 软件零点: 上电/手动清零那一刻的模块原始 yaw */
 static volatile float g_yaw_zero = 0.0f;
+static volatile float g_yaw_raw = 0.0f;
+/* 基准采集状态：0=未开始，1=采集中，2=已确认；仅由主程序读写。 */
+static uint8_t g_ref_state = 0;
+static uint8_t g_ref_count = 0, g_ref_next = 0;
+static uint32_t g_ref_sample_tick = 0;
+static float g_ref_samples[HWT101_REF_SAMPLE_COUNT];
+static void HWT101_ReferencePoll(void);
 static volatile uint8_t g_yaw_valid = 0u;
-/* 配置流程状态: 0=配置完毕 1=已发解锁 2=已发清零 3=已发设速率 4=(可选)已发保存 */
+static volatile uint32_t g_yaw_tick = 0u; /* 最近一次有效角度帧的接收时间，单位为毫秒。 */
+/* 配置阶段：0=配置完成，1=等待启动并解锁，2=设置回传频率，3=结束配置。 */
 static volatile uint8_t g_cfg_stage = 0;
 static uint32_t g_cfg_t0 = 0;
 
@@ -137,7 +136,9 @@ static void HWT101_ParseFrame(const uint8_t *data)
 	switch (data[1])
 	{
 		case 0x53:	/* 角度帧 */
-			g_hwt101.yaw = HWT101_Wrap180((float)raw * HWT101_YAW_LSB - g_yaw_zero);
+			g_yaw_raw = (float)raw * HWT101_YAW_LSB;
+			g_hwt101.yaw = HWT101_Wrap180(g_yaw_raw - g_yaw_zero);
+			g_yaw_tick = GetTick();
 			g_yaw_valid = 1u;
 			break;
 
@@ -214,6 +215,12 @@ void HWT101_Init(void)
 	g_idx  = 0;
 	g_sync = 0;
 	g_yaw_valid = 0u;
+	g_yaw_tick = 0u;
+	g_yaw_zero = g_yaw_raw = 0.0f;
+	g_hwt101.yaw = g_hwt101.gyro_z = 0.0f;
+	g_hwt101.cnt = 0u;
+	g_hwt101.valid = 0u;
+	g_ref_state = g_ref_count = g_ref_next = 0;
 
 	/* 时钟: GPIOD 在 AHB1, USART3 在 APB1(F1 是 APB2, 别照抄 F1 例程) */
 	RCC_AHB1PeriphClockCmd(HWT101_GPIO_CLK, ENABLE);
@@ -278,108 +285,168 @@ static void HWT101_SendCmd(const uint8_t *cmd, uint8_t len)
 	while (USART_GetFlagStatus(HWT101_USART, USART_FLAG_TC) == RESET);
 }
 
-/* 放主循环里调用: 按时间轴把解锁/清零/设速率依次发出去, 全程不阻塞 */
+/* 仅在主程序调用：先完成回传频率配置，再轮询采集稳定的角度基准。 */
 void HWT101_ConfigPoll(void)
 {
-	static const uint8_t unlock_cmd[5] = HWT101_CFG_UNLOCK;
-#if (HWT101_HAS_ZERO_CMD == 1)
-	static const uint8_t zero_cmd[5]   = HWT101_CFG_ZERO;
-#endif
+    static const uint8_t unlock_cmd[5] = HWT101_CFG_UNLOCK;
 #if (HWT101_SET_RATE == 1)
-	static const uint8_t rate_cmd[5]   = HWT101_CFG_RATE;
+    static const uint8_t rate_cmd[5] = HWT101_CFG_RATE;
 #endif
 #if (HWT101_CFG_PERSIST == 1)
-	static const uint8_t save_cmd[5]   = { 0xFF, 0xAA, 0x00, 0x00, 0x00 };	/* 保存, 不重启 */
+    static const uint8_t save_cmd[5] = { 0xFF, 0xAA, 0x00, 0x00, 0x00 };
 #endif
+    uint32_t wait;
 
-	if (g_cfg_stage == 0)
-	{
-		return;		/* 已经配完了, 直接返回 */
-	}
+    if (g_cfg_stage == 0)
+    {
+        HWT101_ReferencePoll();
+        return;
+    }
+    wait = (g_cfg_stage == 1) ? HWT101_CFG_START_DELAY : HWT101_CFG_STEP_GAP;
+    if ((uint32_t)(GetTick() - g_cfg_t0) < wait) return;
 
-	/* 第 1 步之前要等模块启动(START_DELAY); 后续各步之间只隔 STEP_GAP。
-	   注意: 延时判断不能统一用 START_DELAY, 否则每步都要等 1.2s。 */
-	{
-		uint32_t wait = (g_cfg_stage == 1) ? HWT101_CFG_START_DELAY : HWT101_CFG_STEP_GAP;
-		if (GetTick() - g_cfg_t0 < wait)
-		{
-			return;		/* 还没到时间 */
-		}
-	}
-
-	switch (g_cfg_stage)
-	{
-		case 1:		/* 第 1 步: 解锁寄存器 */
-			HWT101_SendCmd(unlock_cmd, 5);
-			g_cfg_stage = 2;
-			g_cfg_t0    = GetTick();
-			break;
-
-		case 2:		/* 第 2 步(解锁后 STEP_GAP): 清零 */
-#if (HWT101_ZERO_MODE == 1)
-			/* 软件偏置法: 必须等到模块真正吐出角度帧再记零点,
-			   否则(模块上电比单片机晚等情形)会把 0 记成零点, 起步 Yaw 就不是 0 */
-			if (!g_yaw_valid)
-			{
-				return;		/* 还没有有效角度帧, 停在这一步等数据, 时间轴不推进 */
-			}
-			HWT101_ZeroHere();
-#elif (HWT101_ZERO_MODE == 2)
-			HWT101_SendCmd(zero_cmd, 5);
-			/* 模块收到清零指令后要几十 ms 才把内部航向角真正归零,
-			   这里顺手把软件零点也清掉, 让读数是模块的绝对朝向 */
-			HWT101_ClearZero();
-#endif
-			g_cfg_stage = 3;
-			g_cfg_t0    = GetTick();
-			break;
-
-		case 3:
+    switch (g_cfg_stage)
+    {
+        case 1:
+            HWT101_SendCmd(unlock_cmd, 5);
+            g_cfg_stage = 2;
+            break;
+        case 2:
 #if (HWT101_SET_RATE == 1)
-			HWT101_SendCmd(rate_cmd, 5);
+            HWT101_SendCmd(rate_cmd, 5);
 #endif
-			g_cfg_stage = 4;
-			g_cfg_t0    = GetTick();
-			break;
-
-		case 4:
+            g_cfg_stage = 3;
+            break;
+        case 3:
 #if (HWT101_CFG_PERSIST == 1)
-			HWT101_SendCmd(save_cmd, 5);
+            HWT101_SendCmd(save_cmd, 5);
 #endif
-			g_cfg_stage = 0;	/* 配置流程结束 */
-			break;
+            g_cfg_stage = 0;
+            /* 配置结束后重新计时，再等 200ms 采集第一个基准样本。 */
+            g_ref_sample_tick = GetTick();
+            break;
+        default:
+            g_cfg_stage = 0;
+            break;
+    }
+    g_cfg_t0 = GetTick();
+}
 
-		default:
-			g_cfg_stage = 0;
-			break;
+/* 初始化阶段调用一次，必须先完成 Timer_Init()、HWT101_Init() 并保持中断开启。
+ * 在其他初始化结束、车身静止后调用；每 200ms 采样一次。
+ * 连续 10 次读数极差不超过 0.03 度时，内部记录平均角度为固定零点并返回。
+ * 未收到新鲜角度或读数不稳定时持续等待；后续角度接口自动扣除该零点。
+ */
+void HWT_Read_Angle(void)
+{
+	Serial_PrintStr("HWT101: keep still, collecting reference...\r\n");
+	HWT101_ReferenceStart();
+	while (HWT101_ConfigBusy())
+	{
+		HWT101_ConfigPoll();
+		Delay_ms(1);
 	}
+	Serial_PrintStr("HWT101 reference=");
+	Serial_PrintFloat(HWT101_GetReference(), 3);
+	Serial_PrintStr(" deg, ready\r\n");
+}
+
+/* 其他初始化完成后调用一次：清除旧偏移，并开始新一轮稳定基准采集。 */
+void HWT101_ReferenceStart(void)
+{
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+    g_yaw_zero = 0.0f;
+    g_hwt101.yaw = g_yaw_raw;
+    __set_PRIMASK(primask);
+    g_ref_count = g_ref_next = 0;
+    g_ref_sample_tick = GetTick();
+    g_ref_state = 1;
+}
+
+/* 每 200ms 检查一次最新角度；确认成功后固定基准，不再随车身转动更新。 */
+static void HWT101_ReferencePoll(void)
+{
+    uint32_t now, frame_tick, elapsed, primask;
+    float yaw, anchor, delta, minimum, maximum, sum;
+    uint8_t i;
+
+    if (g_ref_state != 1) return;
+    now = GetTick();
+    elapsed = (uint32_t)(now - g_ref_sample_tick);
+    if (elapsed < HWT101_REF_INTERVAL_MS) return;
+    i = HWT101_YawSnapshot(&yaw, &frame_tick);
+    now = GetTick(); /* 快照读取后重新取时，避免接收时间比本次判断时间更新。 */
+    elapsed = (uint32_t)(now - g_ref_sample_tick);
+    g_ref_sample_tick = now; /* 不补采遗漏周期，避免将同一帧重复计数。 */
+
+    if (!i || (uint32_t)(now - frame_tick) > HWT101_REF_INTERVAL_MS ||
+        (uint32_t)(now - frame_tick) >= elapsed)
+    {
+        /* 无角度数据、数据过期或本周期没有新角度帧时，清空连续采样记录。 */
+        g_ref_count = g_ref_next = 0;
+        return;
+    }
+    g_ref_samples[g_ref_next] = yaw;
+    g_ref_next = (uint8_t)((g_ref_next + 1U) % HWT101_REF_SAMPLE_COUNT);
+    if (g_ref_count < HWT101_REF_SAMPLE_COUNT) g_ref_count++;
+    if (g_ref_count < HWT101_REF_SAMPLE_COUNT) return;
+
+    /* 以一个样本为参考展开角度，避免跨越 +180/-180 度时误判为大幅波动。 */
+    anchor = g_ref_samples[0];
+    minimum = maximum = sum = 0.0f;
+    for (i = 0; i < HWT101_REF_SAMPLE_COUNT; i++)
+    {
+        delta = HWT101_Wrap180(g_ref_samples[i] - anchor);
+        if (delta < minimum) minimum = delta;
+        if (delta > maximum) maximum = delta;
+        sum += delta;
+    }
+    /* 整组波动超标则继续采样，下一次用最新的 10 个样本重新判断。 */
+    if (maximum - minimum > HWT101_REF_MAX_SPAN) return;
+
+    primask = __get_PRIMASK();
+    __disable_irq();
+    g_yaw_zero = HWT101_Wrap180(anchor + sum / HWT101_REF_SAMPLE_COUNT);
+    /* 用最新原始角度更新结果，包含计算基准期间由中断接收的新角度帧。 */
+    g_hwt101.yaw = HWT101_Wrap180(g_yaw_raw - g_yaw_zero);
+    __set_PRIMASK(primask);
+    g_ref_state = 2;
+}
+
+uint8_t HWT101_ReferenceReady(void)
+{
+    return (g_ref_state == 2) ? 1u : 0u;
+}
+
+float HWT101_GetReference(void)
+{
+    return g_yaw_zero;
 }
 
 uint8_t HWT101_ConfigBusy(void)
 {
-	return (g_cfg_stage != 0) ? 1u : 0u;
+    return (g_cfg_stage != 0 || !HWT101_ReferenceReady()) ? 1u : 0u;
 }
 
 /* ===================== 清零 ===================== */
 /* 把"当前朝向"记成 0 度。必须在车静止时调用。 */
 void HWT101_ZeroHere(void)
 {
-	__disable_irq();
-	/* g_hwt101.yaw 是"模块原始 yaw - g_yaw_zero", 加回去就还原成模块原始 yaw,
-	   再记成新零点。这样反复调用不会累积误差。 */
-	g_yaw_zero   = g_hwt101.yaw + g_yaw_zero;
-	g_hwt101.yaw = 0.0f;				/* 立刻显示成 0, 不用等下一帧 */
-	__enable_irq();
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+    g_yaw_zero = g_yaw_raw;
+    g_hwt101.yaw = 0.0f;
+    __set_PRIMASK(primask);
 }
 
-/* 取消软件零点, 回到模块的绝对朝向 */
 void HWT101_ClearZero(void)
 {
-	__disable_irq();
-	/* 当前 yaw 是"原始 yaw - 零点", 要加回零点才是模块的绝对朝向 */
-	g_hwt101.yaw = HWT101_Wrap180(g_hwt101.yaw + g_yaw_zero);
-	g_yaw_zero   = 0.0f;
-	__enable_irq();
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+    g_hwt101.yaw = g_yaw_raw;
+    g_yaw_zero = 0.0f;
+    __set_PRIMASK(primask);
 }
 
 /* ===================== 数据读取 ===================== */
@@ -394,6 +461,22 @@ uint8_t HWT101_Snapshot(HWT101_Data_t *out)
 	__enable_irq();
 
 	return out->valid;
+}
+
+/* 原子读取偏航角及其角度帧时间戳；仅收到角速度帧时不更新时间戳。 */
+uint8_t HWT101_YawSnapshot(float *yaw, uint32_t *tick)
+{
+    uint32_t primask;
+    uint8_t valid;
+
+    if (yaw == 0 || tick == 0) return 0;
+    primask = __get_PRIMASK();
+    __disable_irq();
+    *yaw = g_hwt101.yaw;
+    *tick = g_yaw_tick;
+    valid = g_yaw_valid;
+    __set_PRIMASK(primask);
+    return valid;
 }
 
 float HWT101_GetYaw(void)
@@ -418,7 +501,7 @@ uint8_t HWT101_IsOnline(void)
 
 /* ===================== 接收中断 ===================== */
 /* 放在本模块里而不是 stm32f4xx_it.c, 和 Timer.c 里写 TIM6_DAC_IRQHandler 的风格一致 */
-/* Print the latest snapshot when the serial command requests it. */
+/* 收到调试串口的读取指令后，打印最新的陀螺仪数据快照。 */
 void HWT101_ReadAndPrint(void)
 {
     HWT101_Data_t data;
@@ -455,4 +538,95 @@ void USART3_IRQHandler(void)
 	{
 		(void)USART_ReceiveData(HWT101_USART);
 	}
+}
+
+
+
+/* 旋转并校准到相对上电稳定零点的目标角度，范围 -180～180 度。
+ * 先按实时角度计算最短转向；偏差大于5度时一次粗转，再相对细调至 ±0.1 度。
+ * 例如当前180度、目标-90度，误差折算为+90度，不会反向绕转270度。
+ * 每步内部等待四轮到位，并在静置100ms后使用新的角度帧判断下一步。
+ */
+void Adjust(float target_angle)
+{
+    uint32_t start, frame_tick, now, motion_tick = 0;
+    float yaw, error;
+    long pulses;
+    uint8_t addr, coarse = 1, need_fresh = 0, yaw_valid;
+    Motor_Td_Result_t result;
+
+    if (!(target_angle >= -180.0f && target_angle <= 180.0f))
+    {
+        Serial_PrintStr("Adjust: target must be -180..180\r\n");
+        return;
+    }
+    if (HWT101_ConfigBusy())
+    {
+        Serial_PrintStr("Adjust: gyro reference not ready\r\n");
+        return;
+    }
+
+    start = GetTick();
+    while (1)
+    {
+        if ((uint32_t)(GetTick() - start) >= 20000U)
+        {
+            Serial_PrintStr("Adjust: timeout\r\n");
+            break;
+        }
+        yaw_valid = HWT101_YawSnapshot(&yaw, &frame_tick);
+        now = GetTick();
+        if (!yaw_valid || (uint32_t)(now - frame_tick) > 200U ||
+            (need_fresh && (int32_t)(frame_tick - motion_tick) <= 0))
+        {
+            /* 到位后最多等200ms接收新角度，不能用转动过程中留下的旧帧继续纠偏。 */
+            if (need_fresh && (uint32_t)(now - motion_tick) <= 200U)
+            {
+                Delay_ms(1);
+                continue;
+            }
+            Serial_PrintStr("Adjust: no fresh yaw\r\n");
+            break;
+        }
+        need_fresh = 0;
+
+        /* yaw已减去上电基准；将目标与实时角度的差折算为最短的 ±180 度。 */
+        error = HWT101_Wrap180(target_angle - yaw);
+        if (error >= -0.1f && error <= 0.1f)
+        {
+            Serial_PrintStr("Adjust OK\r\n");
+            break;
+        }
+
+        if (coarse && (error > 5.0f || error < -5.0f))
+        {
+            /* 大角度只粗转一次：按实测约4125脉冲/90度换算本次相对位移。 */
+            pulses = (long)(error * (4125.0f / 90.0f));
+        }
+        else
+        {
+            /* 剩余偏差按70%细调，每步最多约10度，避免大幅来回摆动。 */
+            pulses = (long)(error * (4125.0f / 90.0f) * 0.7f);
+            if (pulses > 458) pulses = 458;
+            if (pulses < -458) pulses = -458;
+        }
+        coarse = 0;
+
+        result = Move_Turn_Td(pulses);
+        if (result != MOTOR_TD_OK)
+        {
+            Serial_PrintStr("Adjust: turn failed\r\n");
+            break;
+        }
+        motion_tick = GetTick();
+        need_fresh = 1;
+        Delay_ms(100);
+    }
+
+    /* 成功、角度异常或超时退出时，只停止底盘四轮，不影响机械臂。 */
+    for (addr = 1; addr <= 4; addr++)
+    {
+        Emm_V5_Stop_Now(addr, false);
+        Delay_ms(1);
+    }
 }

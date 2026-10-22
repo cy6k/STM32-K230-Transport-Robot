@@ -1,5 +1,6 @@
 #include "usart.h"
 #include "Timer.h"
+#include "Motor_Td.h"
 
 /**********************************************************
 ***	张大头 Emm_V5.0 通讯串口 —— 本板移植版 (USART2, PA2/PA3)
@@ -93,34 +94,32 @@ void usart_init(void)
 	*/
 void USART2_IRQHandler(void)
 {
-	__IO uint16_t i = 0;
+    uint32_t status = USART2->SR;
+    uint8_t data;
+    uint16_t i;
 
-/**********************************************************
-***	串口接收中断
-**********************************************************/
-	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
-	{
-		// 未完成一帧数据接收，数据进入缓冲队列
-		fifo_enQueue((uint8_t)USART2->DR);
-
-		// 清除串口接收中断
-		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-	}
-
-/**********************************************************
-***	串口空闲中断
-**********************************************************/
-	else if(USART_GetITStatus(USART2, USART_IT_IDLE) != RESET)
-	{
-		// 先读SR再读DR，清除IDLE中断
-		USART2->SR; USART2->DR;
-
-		// 提取一帧数据命令
-		rxCount = fifo_queueLength(); for(i=0; i < rxCount; i++) { rxCmd[i] = fifo_deQueue(); }
-
-		// 一帧数据接收完成，置位帧标志位
-		rxFrameFlag = true;
-	}
+    /* 先读SR再读DR，一次清除RXNE/IDLE/错误，避免IDLE分支再次读DR丢字节。 */
+    if (status & (USART_FLAG_RXNE | USART_FLAG_IDLE | USART_FLAG_ORE |
+                  USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE))
+    {
+        data = (uint8_t)USART2->DR;
+        if (status & (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE))
+        {
+            Motor_Td_RxError();
+        }
+        else if (status & USART_FLAG_RXNE)
+        {
+            fifo_enQueue(data);
+            Motor_Td_RxByte(data); /* 到位检测专用队列，中断里只存字节。 */
+        }
+        if (status & USART_FLAG_IDLE)
+        {
+            /* 保留原rxCmd/rxCount接口，_Td不依赖这个单帧缓存。 */
+            rxCount = fifo_queueLength();
+            for (i = 0; i < rxCount; i++) rxCmd[i] = fifo_deQueue();
+            rxFrameFlag = true;
+        }
+    }
 }
 
 /**

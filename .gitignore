@@ -15,8 +15,24 @@
 *.dep
 *.bak
 *.tmp
+*.plg
+*.tra
+*.iex
+*.rpt
+*.ddk
+*.edk
+*.mpf
+*.mpj
+*.omf
+*.__i
 
 # Local uVision settings and debug logs
 *.uvoptx
 *.uvguix.*
 JLinkLog.txt
+JLinkLog*.txt
+JLink*.log
+
+# Windows local metadata
+Thumbs.db
+Desktop.ini
