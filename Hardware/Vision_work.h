@@ -21,12 +21,13 @@ extern int32_t Material_Data[3];
 extern int32_t Ring_Data[2];
 
 void Vision_SetMode(uint8_t mode); /* 1~4对应@m1FFF~@m4FFF；模式2、3各启动一轮定位 */
-void Vision_Read_QR(void);         /* 模式1：等待连续2帧相同内容，写入QR_Data后返回 */
+uint8_t Vision_Read_QR(void);      /* 非阻塞：1=已保存并显示；0=暂未确认；在case j循环调用 */
 /* 模式2：反复调用，每200ms把合法(x,y,z)记录到Material_Data后打印。
  * 无新帧立即返回；错误帧不修改数组、不打印；一周期内可依次处理多帧。
  * 先Timer_Init()、Vision_SetMode(2)；调试时在case k内循环调用，发送m退出接收。
  */
-void Vision_Read_material(void);
+/* 本次收到合法新帧返回1，无新帧返回0；原有调用可忽略返回值。 */
+uint8_t Vision_Read_material(void);
 
 /* 模式3：调试时在case l内循环调用，按200ms节拍处理K230每秒发送的(x,y)。
  * 合法帧整体更新Ring_Data后打印；无完整帧直接返回，错误帧不覆盖旧值。
@@ -38,7 +39,7 @@ void Vision_Read_Ring(void);
  * x用Move_ZY_Td()、y用Move_QH_Td()，每次纠偏等待四轮到位后返回。
  * 定位完成后继续打印，重新切换模式3可再次定位。
  */
-void orient(void);
+uint8_t orient(void); /* 1=本帧完成圆环定位，0=尚未完成或无新帧 */
 
 /* 在 Vision_Read_material() 后持续调用；x、y均在±5内结束本轮定位。
  * 按200ms接收节拍使用新帧判断；每次纠偏动作内部等待四轮到位后返回。

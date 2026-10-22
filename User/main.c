@@ -10,7 +10,12 @@
 #include "Servo.h"
 #include "Work.h"
 #include "VisionSerial.h"
+#include "Vision_work.h"
 #include "Light.h"
+
+char command;
+long number;
+
 
 int main(void)
 {
@@ -64,6 +69,206 @@ int main(void)
 
 
 
+
+void test(void)
+{
+	uint8_t group, i;
+	if(Serial_Available())
+	{
+		command = Serial_Read();
+
+		switch(command)
+		{
+			case 'a':
+			number = Serial_ParseInt();
+//			Move_QH(number);
+			Move_QH_Td(number);
+			Serial_PrintStr("QH delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+
+			case 'b':
+			number = Serial_ParseInt();
+//			Move_ZY(number);
+			Move_ZY_Td(number);
+			Serial_PrintStr("ZY delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+
+			case 'c':
+			number = Serial_ParseInt();
+//			Move_Turn(number);
+			Move_Turn_Td(number);
+			Serial_PrintStr("TURN delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			case 'd':
+			HWT101_ReadAndPrint();
+			break;
+			
+			case 'i':
+			number = Serial_ParseInt();
+			Adjust(number);
+			Serial_PrintStr("Adjust delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			case 'o':
+			number = Serial_ParseInt();
+			Light_set(number);
+			Serial_PrintStr("Light brightness:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			case 'e':
+			Serial_PrintStr("Test Start");
+			catch_first();
+			break;
+			
+			
+			case 't':
+			Serial_PrintStr("Test Start 2\r\n");
+			if (put_first()) grap_first();
+//			TJC_Test();
+			
+			break;
+
+		
+			// 视觉调试：j=二维码，k=料盘识别，l=加工模式，m=休息
+			case 'j':
+			// 在本case内持续接收二维码；发送m退出。
+			Vision_SetMode(1);
+			Serial_PrintStr("K230 Mode1 QR\r\n");
+			while (1)
+			{
+				if (Serial_Available() && Serial_Read() == 'm')
+				{
+					Vision_SetMode(4);
+					Serial_PrintStr("no work\r\n");
+					break;
+				}
+				HWT101_ConfigPoll();
+				if (Vision_Read_QR())
+				{
+					Vision_SetMode(4);
+					Serial_PrintStr("qiehuan");
+					Serial_PrintStr("QR: ");
+					for (group = 0; group < 4; group++)
+					{
+						for (i = 0; i < 3; i++)
+							Serial_SendByte((uint8_t)('0' + QR_Data[group][i]));
+						if (group < 3) Serial_SendByte('+');
+					}
+					Serial_Println();
+					break;
+				}
+			}
+			break;
+
+			case 'k':
+			// 在本case内持续接收料盘数据；发送m退出，其余调试命令退出后再发送。
+			Vision_SetMode(2);
+			Serial_PrintStr("K230 Mode2 Material\r\n");
+			while (1)
+			{
+				if (Serial_Available() && Serial_Read() == 'm')
+				{
+					Vision_SetMode(4);
+					Serial_PrintStr("no work\r\n");
+					break;
+				}
+				HWT101_ConfigPoll();			// 等待期间继续完成陀螺仪配置
+				Vision_Read_material();
+				Locate(); 						// 需要模式2定位时，再取消本行注释
+			}
+			break;
+
+			case 'l':
+			// 在本case内持续接收圆环数据并定位；发送m退出。
+			Vision_SetMode(3);
+			Serial_PrintStr("K230 Mode3 Ring\r\n");
+			while (1)
+			{
+				if (Serial_Available() && Serial_Read() == 'm')
+				{
+					Vision_SetMode(4);
+					Serial_PrintStr("no work\r\n");
+					break;
+				}
+				HWT101_ConfigPoll(); 	// 等待期间继续完成陀螺仪配置
+				Vision_Read_Ring();
+				orient(); 				// 需要只接收打印时，可以注释本行
+			}
+			break;
+
+			case 'm':
+			// 通知 K230 休息。
+			Vision_SetMode(4);
+			Serial_PrintStr("no work\r\n");
+			break;
+
+			case 'q':
+			number = Serial_ParseInt();
+//			Arm_Turn(number);
+			Arm_Turn_Td(number);
+			Serial_PrintStr("Arm Turn delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			case 'w':
+			number = Serial_ParseInt();
+//			Arm_SX(number);
+			Arm_SX_Td(number);
+			Serial_PrintStr("Arm SX delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			case 'r':
+			number = Serial_ParseInt();
+//			Arm_QH(number);
+			Arm_QH_Td(number);
+			Serial_PrintStr("Arm QH delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			case 'f':
+			number = Serial_ParseInt();
+			Servo_Write(number);
+			Serial_PrintStr("Servo delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			case 'g':
+			number = Serial_ParseInt();
+//			Move_slant1(number);
+			Move_slant1_Td(number);
+			Serial_PrintStr("slant1 delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			case 'h':
+			number = Serial_ParseInt();
+//			Move_slant2(number);
+			Move_slant2_Td(number);
+			Serial_PrintStr("slant2 delta:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+		}
+	}
+}
 
 
 
