@@ -8,7 +8,7 @@
 #define acc_1 235
 
 #define vel_2 600
-#define acc_2 250
+#define acc_2 252
 
 #define vel_3 1000
 #define acc_3 255

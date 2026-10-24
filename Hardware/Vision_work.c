@@ -226,30 +226,21 @@ void Vision_Read_Ring(void)
     }
 }
 
-/* 模式2定位：每个新帧只调整一个轴，先横向 x，再前后 y。
+/* 模式2定位：每个新帧先左右纠偏，再前后纠偏。
  * 实测换算：Move_ZY(200)使x增大约35，Move_QH(200)使y减小约50。
- * 每次按误差的50%纠偏，最多200脉冲；两轴均在±5内后结束本轮定位。
- * 料盘数据按200ms节拍读取；每次纠偏使用到位检测动作，等待四轮到位后返回。
+ * 每次按误差的60%纠偏，每轴位移最多300脉冲；两轴均在±5内后结束本轮定位。
+ * 不使用到位检测，每轴发令后延时100ms，两步结束后清除旧帧，等待新帧判断。
  * 定位结束不切换视觉模式，后续仍由 Vision_Read_material() 接收、打印。 */
 void Locate(void)
 {
-    float pulses;
-    uint8_t axis, addr;
+    float qh, zy;
+    uint8_t addr;
 
     if (visionMode != 2 || !locateActive || !materialUpdated) return;
     materialUpdated = 0; /* 同一帧只用于一次纠偏，没收到新帧就不继续运动。 */
 
-    if (Material_Data[0] > 5 || Material_Data[0] < -5)
-    {
-        axis = 0;
-        pulses = -(float)Material_Data[0] * (200.0f / 35.0f) * 0.5f;
-    }
-    else if (Material_Data[1] > 5 || Material_Data[1] < -5)
-    {
-        axis = 1;
-        pulses = (float)Material_Data[1] * (200.0f / 50.0f) * 0.5f;
-    }
-    else
+    if (Material_Data[0] >= -5 && Material_Data[0] <= 5 &&
+        Material_Data[1] >= -5 && Material_Data[1] <= 5)
     {
         locateActive = 0;
         /* 已进入允许区域，停止底盘四轮，机械臂电机不受影响。 */
@@ -262,38 +253,41 @@ void Locate(void)
         return;
     }
 
-    /* 先限幅再转整数，较大的坐标也不会产生超范围脉冲。 */
-    if (pulses > 200.0f) pulses = 200.0f;
-    if (pulses < -200.0f) pulses = -200.0f;
-    if (axis == 0) Move_ZY_Td((long)pulses);
-    else Move_QH_Td((long)pulses);
+    if (Material_Data[0] > 5 || Material_Data[0] < -5)
+    {
+        zy = -(float)Material_Data[0] * (200.0f / 35.0f) * 0.6f;
+        if (zy > 300.0f) zy = 300.0f;
+        if (zy < -300.0f) zy = -300.0f;
+        Move_ZY((long)zy);
+        Delay_ms(100);
+    }
+    if (Material_Data[1] > 5 || Material_Data[1] < -5)
+    {
+        qh = (float)Material_Data[1] * (200.0f / 50.0f) * 0.6f;
+        if (qh > 300.0f) qh = 300.0f;
+        if (qh < -300.0f) qh = -300.0f;
+        Move_QH((long)qh);
+        Delay_ms(100);
+    }
+    VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
 }
 
-/* 模式3圆环定位：每个新帧只调整一个轴，先x后y，两轴均在±5内结束。
+/* 模式3圆环定位：每个新帧先左右纠偏，再前后纠偏。
  * 实测Move_ZY(200)使x减小约20，Move_QH(200)使y增大约22。
- * 每次纠正约50%的偏差，最多200脉冲；未收到新帧时不重复运动。
- * 每次纠偏使用到位检测动作，等待四轮到位后返回。
+ * 每次纠正约60%的偏差，每轴位移最多300脉冲；两轴均在±5内后结束。
+ * 不使用到位检测，每轴发令后延时100ms，两步结束后清除旧帧，等待新帧判断。
  * 定位结束后继续接收和打印，重新切换模式3可再开始一轮定位。
  */
 uint8_t orient(void)
 {
-    float pulses;
-    uint8_t axis, addr;
+    float qh, zy;
+    uint8_t addr;
 
     if (visionMode != 3 || !orientActive || !ringUpdated) return 0;
     ringUpdated = 0; /* 同一帧只用于一次纠偏，初始数组清零不作为到位依据。 */
 
-    if (Ring_Data[0] > 5 || Ring_Data[0] < -5)
-    {
-        axis = 0;
-        pulses = (float)Ring_Data[0] * (200.0f / 20.0f) * 0.5f;
-    }
-    else if (Ring_Data[1] > 5 || Ring_Data[1] < -5)
-    {
-        axis = 1;
-        pulses = -(float)Ring_Data[1] * (200.0f / 22.0f) * 0.5f;
-    }
-    else
+    if (Ring_Data[0] >= -5 && Ring_Data[0] <= 5 &&
+        Ring_Data[1] >= -5 && Ring_Data[1] <= 5)
     {
         orientActive = 0;
         /* 已对准圆环，仅停止底盘四轮，机械臂不受影响。 */
@@ -306,10 +300,22 @@ uint8_t orient(void)
         return 1;
     }
 
-    /* 先限幅再转整数，避免较大的坐标产生超范围脉冲。 */
-    if (pulses > 200.0f) pulses = 200.0f;
-    if (pulses < -200.0f) pulses = -200.0f;
-    if (axis == 0) Move_ZY_Td((long)pulses);
-    else Move_QH_Td((long)pulses);
+    if (Ring_Data[0] > 5 || Ring_Data[0] < -5)
+    {
+        zy = (float)Ring_Data[0] * (200.0f / 20.0f) * 0.6f;
+        if (zy > 300.0f) zy = 300.0f;
+        if (zy < -300.0f) zy = -300.0f;
+        Move_ZY((long)zy);
+        Delay_ms(100);
+    }
+    if (Ring_Data[1] > 5 || Ring_Data[1] < -5)
+    {
+        qh = -(float)Ring_Data[1] * (200.0f / 22.0f) * 0.6f;
+        if (qh > 300.0f) qh = 300.0f;
+        if (qh < -300.0f) qh = -300.0f;
+        Move_QH((long)qh);
+        Delay_ms(100);
+    }
+    VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
     return 0;
 }

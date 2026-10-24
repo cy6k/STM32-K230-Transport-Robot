@@ -73,6 +73,7 @@ int main(void)
 void test(void)
 {
 	uint8_t group, i;
+	long angle;
 	if(Serial_Available())
 	{
 		command = Serial_Read();
@@ -110,6 +111,19 @@ void test(void)
 			HWT101_ReadAndPrint();
 			break;
 			
+			case 'n':
+			angle = Serial_ParseInt();
+			number = Serial_ParseInt();
+			Move(angle, number);
+			Serial_PrintStr("Move angle:");
+			Serial_PrintInt(angle);
+			Serial_PrintStr(" pulses:");
+			Serial_PrintInt(number);
+			Serial_Println();
+			break;
+			
+			
+			
 			case 'i':
 			number = Serial_ParseInt();
 			Adjust(number);
@@ -134,7 +148,6 @@ void test(void)
 			
 			case 't':
 			Serial_PrintStr("Test Start 2\r\n");
-			if (put_first()) grap_first();
 //			TJC_Test();
 			
 			break;

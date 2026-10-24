@@ -19,6 +19,7 @@ void Move_ZY(long mcs);
 void Move_Turn(long mcs);
 
 
+
 //45度斜向运动：mcs为前后、左右各自的位移分量；正数按注释方向，负数反向
 void Move_slant1(long mcs);    // 正时右上，负时左下
 void Move_slant2(long mcs);    // 正时右下，负时左上
@@ -35,6 +36,10 @@ Motor_Td_Result_t Move_Turn_Td(long mcs);
 Motor_Td_Result_t Move_slant1_Td(long mcs);
 Motor_Td_Result_t Move_slant2_Td(long mcs);
 
+
+//任意角度平移：-180~180度，0前、90右、-90左；mcs为合成位移，负数反向
+//不等待到位；0脉冲、非法角度或四轮脉冲超出long范围时不发令
+void Move(float angle, long mcs);
 
 #endif
 
