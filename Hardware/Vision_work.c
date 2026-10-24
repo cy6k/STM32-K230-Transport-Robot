@@ -229,7 +229,7 @@ void Vision_Read_Ring(void)
 /* 模式2定位：每个新帧先左右纠偏，再前后纠偏。
  * 实测换算：Move_ZY(200)使x增大约35，Move_QH(200)使y减小约50。
  * 每次按误差的60%纠偏，每轴位移最多300脉冲；两轴均在±5内后结束本轮定位。
- * 不使用到位检测，每轴发令后延时100ms，两步结束后清除旧帧，等待新帧判断。
+ * 不使用到位检测，每轴发令后延时200ms，两步结束后清除旧帧，等待新帧判断。
  * 定位结束不切换视觉模式，后续仍由 Vision_Read_material() 接收、打印。 */
 void Locate(void)
 {
@@ -259,7 +259,7 @@ void Locate(void)
         if (zy > 300.0f) zy = 300.0f;
         if (zy < -300.0f) zy = -300.0f;
         Move_ZY((long)zy);
-        Delay_ms(100);
+        Delay_ms(200);
     }
     if (Material_Data[1] > 5 || Material_Data[1] < -5)
     {
@@ -267,7 +267,7 @@ void Locate(void)
         if (qh > 300.0f) qh = 300.0f;
         if (qh < -300.0f) qh = -300.0f;
         Move_QH((long)qh);
-        Delay_ms(100);
+        Delay_ms(200);
     }
     VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
 }
@@ -275,7 +275,7 @@ void Locate(void)
 /* 模式3圆环定位：每个新帧先左右纠偏，再前后纠偏。
  * 实测Move_ZY(200)使x减小约20，Move_QH(200)使y增大约22。
  * 每次纠正约60%的偏差，每轴位移最多300脉冲；两轴均在±5内后结束。
- * 不使用到位检测，每轴发令后延时100ms，两步结束后清除旧帧，等待新帧判断。
+ * 不使用到位检测，每轴发令后延时200ms，两步结束后清除旧帧，等待新帧判断。
  * 定位结束后继续接收和打印，重新切换模式3可再开始一轮定位。
  */
 uint8_t orient(void)
@@ -306,7 +306,7 @@ uint8_t orient(void)
         if (zy > 300.0f) zy = 300.0f;
         if (zy < -300.0f) zy = -300.0f;
         Move_ZY((long)zy);
-        Delay_ms(100);
+        Delay_ms(200);
     }
     if (Ring_Data[1] > 5 || Ring_Data[1] < -5)
     {
@@ -314,7 +314,7 @@ uint8_t orient(void)
         if (qh > 300.0f) qh = 300.0f;
         if (qh < -300.0f) qh = -300.0f;
         Move_QH((long)qh);
-        Delay_ms(100);
+        Delay_ms(200);
     }
     VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
     return 0;

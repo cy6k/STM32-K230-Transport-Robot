@@ -40,7 +40,7 @@ int main(void)
 	Delay_ms(3000);
 	HWT_Read_Angle();					//其他初始化完成后调用，等待角度稳定并记录为零点
 	Serial_PrintStr("Waiting for work \r\n");
-	Servo_Write(55);					//所有任务初始化完成后，打开爪子，标志可以开始工作
+	Servo_Write(30);					//所有任务初始化完成后，打开爪子，标志可以开始工作
 	
 	while (1)
 	{
@@ -50,11 +50,11 @@ int main(void)
 		// 持续轮询屏幕启动消息，点击任意启动按钮即可运行测试
 		if (TJC_ReceiveStartL1() == 1)
 		{
-			test_run1_Td();
+			test_run1();
 		}
 		if (TJC_ReceiveStartR1() == 1)
 		{
-			test_run2_Td();
+			test_run2();
 		}
 		if (TJC_ReceiveStartL2() == 1)
 		{

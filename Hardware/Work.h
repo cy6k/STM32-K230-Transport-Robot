@@ -8,9 +8,9 @@
 void test(void);
 
 
-// 路线测试，_Td版本使用阻塞式到位检测
-void test_run1_Td(void);
-void test_run2_Td(void);
+// 路线测试：普通运动接口加固定延时，Adjust保留角度闭环
+void test_run1(void);
+void test_run2(void);
 
 
 // catch_ij：转盘i号取料，放到车载料盘j号（i、j为1~3）
@@ -56,7 +56,7 @@ uint8_t put_second(void);
 //第二批粗加工取回：按二维码第四组顺序，从圆环抓回同号车载料盘
 void grap_second(void);
 
-//第二批暂存区叠放：先定位，按颜色叠到第一批对应位置；1完成，0任务错误/定位超时
+//第二批暂存区叠放：先定位，按二维码第四组位置叠放，两批颜色可不同；1完成，0任务错误/定位超时
 uint8_t put_third(void);
 
 

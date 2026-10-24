@@ -16,32 +16,35 @@
 
 
 
-
-
-
 //左出发，无障碍
-void test_run1_Td(void)
+void test_run1(void)
 {
 	uint32_t start;
 
 	//出
-	Move_slant1_Td(2000);
+	Move_slant1(2000);
+	Delay_ms(1000);
 	Adjust(0);
 	HWT101_ReadAndPrint();
 	
 	//到原料区
 	Adjust(90);
-	Move_QH_Td(23000);
+	Move_QH(23000);
+	Delay_ms(4000);
 	Adjust(0);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	HWT101_ReadAndPrint();
 	
 	
 	//转动到扫描二维码角度
 	Adjust(-90);
-	Arm_Turn_Td(9900);
-	Arm_SX_Td(-3000);
-	Arm_QH_Td(25000);
+	Arm_Turn(9900);
+	Delay_ms(1000);
+	Arm_SX(-3000);
+	Delay_ms(500);
+	Arm_QH(25000);
+	Delay_ms(1000);
 	
 	//扫描二维码,记录数据
 	Vision_SetMode(1);
@@ -59,96 +62,124 @@ void test_run1_Td(void)
 	Vision_SetMode(4);
 	
 	//为Locate()准备
-	Arm_QH_Td(11000);
-	Arm_Turn_Td(0);
-	Move_QH_Td(-500);
+	Arm_QH(11000);
+	Delay_ms(500);
+	Arm_Turn(0);
+	Delay_ms(500);
+	Move_QH(-500);
+	Delay_ms(500);
 	
 	
 	//从转盘上抓物料
-	if (!catch_first()) return;
-	Arm_QH_Td(0);
+	catch_first();
 	
 	
 	//到粗加工区
 	Adjust(-90);
-	Move_QH_Td(24000);
+	Move_QH(24000);
+	Delay_ms(4000);
 	
 	
 	//放物料到粗加工区圆环,放完再取
 	Adjust(90);
-	Arm_QH_Td(13000);
+	Arm_QH(13000);
+	Delay_ms(500);
 	put_first();
 	grap_first();
-	Arm_QH_Td(0);
-	Arm_Turn_Td(0);
+	Arm_Turn(0);
+	Delay_ms(500);
 	
 	//到暂存区
 	Adjust(0);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	Adjust(90);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	
 	
 	//放物料到暂存区
 	Adjust(180);
-	Arm_SX_Td(-3000);
-	Arm_QH_Td(13000);
+	Arm_SX(-3000);
+	Delay_ms(500);
+	Arm_QH(13000);
+	Delay_ms(500);
 	put_first();
-	Arm_QH_Td(0);
-	Arm_Turn_Td(0);
+	Arm_QH(0);
+	Delay_ms(500);
+	Arm_Turn(0);
+	Delay_ms(500);
 	Adjust(90);
 
 
 	//再到原料区
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	Adjust(180);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
+	
+	
+	//准备原料区第二次取料
+	Adjust(-90);
+	Arm_SX(-3000);
+	Delay_ms(500);
+	Arm_QH(11000);
+	Delay_ms(500);
+	Move_QH(-1000);
+	Delay_ms(500);
 	
 	
 	//原料区第二次取料
-	Adjust(-90);
-	Arm_SX_Td(-3000);
-	Arm_QH_Td(11000);
 	catch_second();
-	Arm_QH_Td(0);
 	
 	
 	//再到粗加工区
 	Adjust(-90);
-	Move_QH_Td(23000);
+	Move_QH(24000);
+	Delay_ms(4000);
 	
 	
 	//粗加工第二次放料取料
 	Adjust(90);
-	Arm_QH_Td(13000);
+	Arm_QH(13000);
+	Delay_ms(500);
 	put_second();
 	grap_second();
-	Arm_SX_Td(-3000);
-	Arm_Turn_Td(0);
-	Arm_QH_Td(0);
+	Arm_SX(-3000);
+	Delay_ms(500);
+	Arm_Turn(0);
+	Delay_ms(500);
 	
 	
 	//再到暂存区
 	Adjust(0);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	Adjust(90);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	
 	
 	//暂存区放第二批物料，重叠
 	Adjust(180);
-	Arm_QH_Td(13000);
+	Arm_QH(13000);
+	Delay_ms(500);
 	put_third();
-	Arm_QH_Td(0);
+	Arm_QH(0);
+	Delay_ms(500);
 	
 
 	//回
 	Adjust(180);
-	Move_QH_Td(23000);
+	Move_QH(23000);
+	Delay_ms(4000);
 	Adjust(90);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	Adjust(0);
-	Move_slant2_Td(2000);
+	Move_slant2(2000);
+	Delay_ms(500);
 	TJC_SetPage(3);
 	HWT101_ReadAndPrint();
 }
@@ -156,28 +187,31 @@ void test_run1_Td(void)
 
 
 
-
-
 //右出发，无障碍
-void test_run2_Td(void)	
+void test_run2(void)	
 {
 	uint32_t start;
 	
 	//出
-	Move_slant2_Td(-2000);
+	Move_slant2(-2000);
+	Delay_ms(1000);
 	Adjust(0);
 	HWT101_ReadAndPrint();
 	
 	
 	//到原料区
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	HWT101_ReadAndPrint();
 	
 	//转动到扫描二维码角度
 	Adjust(-90);
-	Arm_Turn_Td(9900);
-	Arm_SX_Td(-3000);
-	Arm_QH_Td(25000);
+	Arm_Turn(9900);
+	Delay_ms(1000);
+	Arm_SX(-3000);
+	Delay_ms(500);
+	Arm_QH(25000);
+	Delay_ms(1000);
 	
 	//扫描二维码,记录数据
 	Vision_SetMode(1);
@@ -195,102 +229,129 @@ void test_run2_Td(void)
 	Vision_SetMode(4);
 	
 	//为Locate()准备
-	Arm_QH_Td(11000);
-	Arm_Turn_Td(0);
-	Move_QH_Td(-1000);
+	Arm_QH(11000);
+	Delay_ms(500);
+	Arm_Turn(0);
+	Delay_ms(500);
+	Move_QH(-1000);
+	Delay_ms(500);
 	
 	
 	//从转盘上抓物料
-	if (!catch_first()) return;
-	Arm_QH_Td(0);
+	catch_first();
 	
 	
 	//到粗加工区
 	Adjust(-90);
-	Move_QH_Td(24000);
+	Move_QH(24000);
+	Delay_ms(4000);
 	
 	
 	//放物料到粗加工区圆环,放完再取
 	Adjust(90);
-	Arm_QH_Td(13000);
+	Arm_QH(13000);
+	Delay_ms(500);
 	put_first();
 	grap_first();
-	Arm_QH_Td(0);
-	Arm_Turn_Td(0);
+	Arm_QH(0);
+	Delay_ms(500);
+	Arm_Turn(0);
+	Delay_ms(500);
 	
 	//到暂存区
 	Adjust(0);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	Adjust(90);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	
 	
 	//放物料到暂存区
 	Adjust(180);
-	Arm_SX_Td(-3000);
-	Arm_QH_Td(13000);
+	Arm_SX(-3000);
+	Delay_ms(500);
+	Arm_QH(13000);
+	Delay_ms(500);
 	put_first();
-	Arm_QH_Td(0);
-	Arm_Turn_Td(0);
+	Arm_QH(0);
+	Delay_ms(500);
+	Arm_Turn(0);
+	Delay_ms(500);
 	Adjust(90);
 
 
 	//再到原料区
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	Adjust(180);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
+	
+	//准备原料区第二次取料
+	Adjust(-90);
+	Arm_SX(-3000);
+	Delay_ms(500);
+	Arm_QH(11000);
+	Delay_ms(500);
+	Move_QH(-500);
+	Delay_ms(500);
 	
 	//原料区第二次取料
-	Adjust(-90);
-	Arm_SX_Td(-3000);
-	Arm_QH_Td(11000);
 	catch_second();
-	Arm_QH_Td(0);
 	
 	
 	//再到粗加工区
 	Adjust(-90);
-	Move_QH_Td(23000);
+	Move_QH(24000);
+	Delay_ms(4000);
 	
 	
 	//粗加工第二次放料取料
 	Adjust(90);
-	Arm_QH_Td(13000);
+	Arm_QH(13000);
+	Delay_ms(500);
 	put_second();
 	grap_second();
-	Arm_SX_Td(-3000);
-	Arm_Turn_Td(0);
-	Arm_QH_Td(0);
+	Arm_SX(-3000);
+	Delay_ms(500);
+	Arm_Turn(0);
+	Delay_ms(500);
+	Arm_QH(0);
+	Delay_ms(500);
 	
 	
 	//再到暂存区
 	Adjust(0);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	Adjust(90);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	
 	
 	//暂存区放第二批物料，重叠
 	Adjust(180);
-	Arm_QH_Td(13000);
+	Arm_QH(13000);
+	Delay_ms(500);
 	put_third();
-	Arm_QH_Td(0);
+	Arm_QH(0);
+	Delay_ms(500);
 	
 	
 	//回
 	Adjust(180);
-	Move_QH_Td(23000);
+	Move_QH(23000);
+	Delay_ms(4000);
 	Adjust(-90);
-	Move_QH_Td(11500);
+	Move_QH(11500);
+	Delay_ms(3000);
 	Adjust(0);
-	Move_slant1_Td(-2000);
+	Move_slant1(-2000);
+	Delay_ms(500);
 	TJC_SetPage(3); 
 	HWT101_ReadAndPrint();
 }
-
-
-
-
 
 
 
@@ -633,28 +694,24 @@ void grap_second(void)
 
 
 
-//第二批暂存区叠放：按颜色对应第一批位置，下降到实测叠放高度后松爪
+//第二批暂存区叠放：按二维码第四组位置，下降到实测叠放高度后松爪
 uint8_t put_third(void)
 {
-	uint8_t i, j, target[3];
+	uint8_t i, j;
 	uint32_t start;
 
-	//第四组是车载取料位，叠放目标要按颜色查第一批的第二组位置。
+	//两批颜色可以不同，第四组同时指定车载取料位和暂存区叠放位。
 	for (i = 0; i < 3; i++)
 	{
-		for (j = 0; j < 3; j++)
-			if (QR_Data[0][j] == QR_Data[2][i]) break;
-		if (j == 3 || QR_Data[2][i] < 1 || QR_Data[2][i] > 6 ||
-			QR_Data[3][i] < 1 || QR_Data[3][i] > 3 ||
-			QR_Data[1][j] < 1 || QR_Data[1][j] > 3)
+		if (QR_Data[2][i] < 1 || QR_Data[2][i] > 6 ||
+			QR_Data[3][i] < 1 || QR_Data[3][i] > 3)
 		{
 			Serial_PrintStr("Stack task error\r\n");
 			return 0;
 		}
-		target[i] = QR_Data[1][j];
 		for (j = 0; j < i; j++)
 		{
-			if (QR_Data[3][i] == QR_Data[3][j] || target[i] == target[j])
+			if (QR_Data[3][i] == QR_Data[3][j])
 			{
 				Serial_PrintStr("Stack task error\r\n");
 				return 0;
@@ -709,8 +766,8 @@ uint8_t put_third(void)
 		Arm_SX(-7000);
 		Delay_ms(300);
 
-		//到第一批同颜色物料所在的暂存区位置。
-		switch (target[i])
+		//到第四组指定的暂存区叠放位置。
+		switch (QR_Data[3][i])
 		{
 			case 1:
 				Arm_QH(19200);
@@ -744,8 +801,6 @@ uint8_t put_third(void)
 
 
 
-
-
 //抓取转盘1号位放置料盘1号位
 void catch_11(void)
 {
@@ -755,7 +810,7 @@ void catch_11(void)
 	Arm_QH(28500);
 	Delay_ms(450);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
@@ -792,7 +847,7 @@ void catch_12(void)
 	Arm_QH(28500);
 	Delay_ms(450);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
@@ -829,7 +884,7 @@ void catch_13(void)
 	Arm_QH(28500);
 	Delay_ms(450);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
@@ -866,7 +921,7 @@ void catch_21(void)
 	Arm_QH(12500);
 	Delay_ms(300);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
@@ -903,7 +958,7 @@ void catch_22(void)
 	Arm_QH(12500);
 	Delay_ms(300);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
@@ -940,7 +995,7 @@ void catch_23(void)
 	Arm_QH(12500);
 	Delay_ms(300);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
@@ -977,7 +1032,7 @@ void catch_31(void)
 	Arm_QH(28100);
 	Delay_ms(450);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
@@ -1014,7 +1069,7 @@ void catch_32(void)
 	Arm_QH(28100);
 	Delay_ms(450);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
@@ -1051,7 +1106,7 @@ void catch_33(void)
 	Arm_QH(28100);
 	Delay_ms(450);
 	Arm_SX(-11400);
-	Delay_ms(350);
+	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
