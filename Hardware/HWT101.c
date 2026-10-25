@@ -545,7 +545,7 @@ void USART3_IRQHandler(void)
 /* 旋转并校准到相对上电稳定零点的目标角度，范围 -180～180 度。
  * 先按实时角度计算最短转向；偏差大于5度时一次粗转，再相对细调至 ±0.1 度。
  * 例如当前180度、目标-90度，误差折算为+90度，不会反向绕转270度。
- * 普通转向接口加固定延时：90度档1000ms、180度档1500ms，细调100ms；随后读取新角度帧。
+ * 普通转向接口加固定延时：90度档1200ms、180度档1800ms，细调400ms；随后读取新角度帧。
  */
 void Adjust(float target_angle)
 {
@@ -602,7 +602,7 @@ void Adjust(float target_angle)
             /* 大角度只粗转一次：按实测约4125脉冲/90度换算本次相对位移。 */
             pulses = (long)(error * (4125.0f / 90.0f));
             /* 用135度区分90/180度档，避免90度附近的小偏差误选长延时。 */
-            wait_ms = (error > 135.0f || error < -135.0f) ? 1500U : 1000U;
+            wait_ms = (error > 135.0f || error < -135.0f) ? 1800U : 1200U;
         }
         else
         {
@@ -610,7 +610,7 @@ void Adjust(float target_angle)
             pulses = (long)(error * (4125.0f / 90.0f) * 0.7f);
             if (pulses > 458) pulses = 458;
             if (pulses < -458) pulses = -458;
-            wait_ms = 100U;
+            wait_ms = 400U;
         }
         coarse = 0;
 

@@ -25,7 +25,7 @@ int main(void)
 	Serial_Init();						//USART1(PA9=TX / PA10=RX)，DAP调试口
 	HWT101_Init();						//陀螺仪初始化
 	Servo_Init();						//舵机初始化
-	Light_Init();						// 补光灯初始化，PA4/TIM7，默认关闭
+	Light_Init();						// 补光灯初始化，PA4，默认关闭
 	VisionSerial_Init();				// UART4：PA0/PA1，115200，连接 K230 视觉模块
 	TJC_USART6_Init();					// USART6: PC6/PC7, 9600, 串口屏
 	Delay_ms(500);						//等电机自检完成
@@ -134,15 +134,32 @@ void test(void)
 			
 			case 'o':
 			number = Serial_ParseInt();
-			Light_set(number);
-			Serial_PrintStr("Light brightness:");
+			if (number != 0)
+			{
+				Light_on();
+			}
+			else
+			{
+				Light_off();
+			}
+			Serial_PrintStr("Light state:");
 			Serial_PrintInt(number);
 			Serial_Println();
 			break;
 			
 			case 'e':
 			Serial_PrintStr("Test Start");
-			catch_first();
+//			catch_first();
+			
+			catch_11();
+			catch_22();
+			catch_33();
+			catch_12();
+			catch_23();
+			catch_31();
+			catch_13();
+			catch_21();
+			catch_32();
 			break;
 			
 			
