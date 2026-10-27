@@ -900,16 +900,6 @@
               <FilePath>.\Hardware\Emm_V5.h</FilePath>
             </File>
             <File>
-              <FileName>Motor_Td.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Hardware\Motor_Td.c</FilePath>
-            </File>
-            <File>
-              <FileName>Motor_Td.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Hardware\Motor_Td.h</FilePath>
-            </File>
-            <File>
               <FileName>Motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Hardware\Motor.c</FilePath>

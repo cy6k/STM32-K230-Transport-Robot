@@ -1,6 +1,5 @@
 #include "usart.h"
 #include "Timer.h"
-#include "Motor_Td.h"
 
 /**********************************************************
 ***	张大头 Emm_V5.0 通讯串口 —— 本板移植版 (USART2, PA2/PA3)
@@ -103,18 +102,14 @@ void USART2_IRQHandler(void)
                   USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE))
     {
         data = (uint8_t)USART2->DR;
-        if (status & (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE))
-        {
-            Motor_Td_RxError();
-        }
-        else if (status & USART_FLAG_RXNE)
+        if ((status & USART_FLAG_RXNE) &&
+            !(status & (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)))
         {
             fifo_enQueue(data);
-            Motor_Td_RxByte(data); /* 到位检测专用队列，中断里只存字节。 */
         }
         if (status & USART_FLAG_IDLE)
         {
-            /* 保留原rxCmd/rxCount接口，_Td不依赖这个单帧缓存。 */
+            /* 空闲中断时，将本帧数据从 FIFO 取出。 */
             rxCount = fifo_queueLength();
             for (i = 0; i < rxCount; i++) rxCmd[i] = fifo_deQueue();
             rxFrameFlag = true;

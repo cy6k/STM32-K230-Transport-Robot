@@ -29,6 +29,7 @@ uint8_t Vision_Read_QR(void);      /* 非阻塞：1=已保存并显示；0=暂�
  */
 /* 本次收到合法新帧返回1，无新帧返回0；原有调用可忽略返回值。 */
 uint8_t Vision_Read_material(void);
+uint8_t Vision_Read_material_now(void); /* 定位后等z变化：立即处理完整新帧，返回值同上。 */
 
 /* 模式3：调试时在case l内循环调用，按200ms节拍处理K230每秒发送的(x,y)。
  * 合法帧整体更新Ring_Data后打印；无完整帧直接返回，错误帧不覆盖旧值。

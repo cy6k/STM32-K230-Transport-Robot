@@ -82,8 +82,7 @@ void test(void)
 		{
 			case 'a':
 			number = Serial_ParseInt();
-//			Move_QH(number);
-			Move_QH_Td(number);
+			Move_QH(number);
 			Serial_PrintStr("QH delta:");
 			Serial_PrintInt(number);
 			Serial_Println();
@@ -91,8 +90,7 @@ void test(void)
 
 			case 'b':
 			number = Serial_ParseInt();
-//			Move_ZY(number);
-			Move_ZY_Td(number);
+			Move_ZY(number);
 			Serial_PrintStr("ZY delta:");
 			Serial_PrintInt(number);
 			Serial_Println();
@@ -100,8 +98,7 @@ void test(void)
 
 			case 'c':
 			number = Serial_ParseInt();
-//			Move_Turn(number);
-			Move_Turn_Td(number);
+			Move_Turn(number);
 			Serial_PrintStr("TURN delta:");
 			Serial_PrintInt(number);
 			Serial_Println();
@@ -151,15 +148,21 @@ void test(void)
 			Serial_PrintStr("Test Start");
 //			catch_first();
 			
-			catch_11();
-			catch_22();
-			catch_33();
-			catch_12();
-			catch_23();
-			catch_31();
-			catch_13();
-			catch_21();
-			catch_32();
+			put1();
+			put2();
+			put3();
+			grap1();
+			grap2();
+			grap3();
+			
+			put2();
+			put1();
+			put3();
+			grap2();
+			grap1();
+			grap3();
+						
+			
 			break;
 			
 			
@@ -245,8 +248,7 @@ void test(void)
 
 			case 'q':
 			number = Serial_ParseInt();
-//			Arm_Turn(number);
-			Arm_Turn_Td(number);
+			Arm_Turn(number);
 			Serial_PrintStr("Arm Turn delta:");
 			Serial_PrintInt(number);
 			Serial_Println();
@@ -254,8 +256,7 @@ void test(void)
 			
 			case 'w':
 			number = Serial_ParseInt();
-//			Arm_SX(number);
-			Arm_SX_Td(number);
+			Arm_SX(number);
 			Serial_PrintStr("Arm SX delta:");
 			Serial_PrintInt(number);
 			Serial_Println();
@@ -263,8 +264,7 @@ void test(void)
 			
 			case 'r':
 			number = Serial_ParseInt();
-//			Arm_QH(number);
-			Arm_QH_Td(number);
+			Arm_QH(number);
 			Serial_PrintStr("Arm QH delta:");
 			Serial_PrintInt(number);
 			Serial_Println();
@@ -280,8 +280,7 @@ void test(void)
 			
 			case 'g':
 			number = Serial_ParseInt();
-//			Move_slant1(number);
-			Move_slant1_Td(number);
+			Move_slant1(number);
 			Serial_PrintStr("slant1 delta:");
 			Serial_PrintInt(number);
 			Serial_Println();
@@ -289,8 +288,7 @@ void test(void)
 			
 			case 'h':
 			number = Serial_ParseInt();
-//			Move_slant2(number);
-			Move_slant2_Td(number);
+			Move_slant2(number);
 			Serial_PrintStr("slant2 delta:");
 			Serial_PrintInt(number);
 			Serial_Println();

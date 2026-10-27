@@ -97,6 +97,31 @@ static void Sync_By_Delta(long qh, long zy, long turn)
 }
 
 
+/* 按3200脉冲/圈和当前底盘参数计算静止起步至停止的理论时间，不加余量。 */
+uint32_t Move_TimeMs(long mcs)
+{
+	double pulses = fabs((double)mcs);
+	double stepTime, rampPulses, seconds;
+
+	if (pulses == 0.0) return 0;
+	if (E_acc == 0)
+	{
+		seconds = pulses * 60.0 / (3200.0 * E_vel);
+	}
+	else
+	{
+		// Emm V5每增加1RPM需(256-acc)*50us，短行程未达到设定速度就减速。
+		stepTime = (256.0 - E_acc) * 0.00005;
+		rampPulses = 3200.0 * E_vel * E_vel * stepTime / 60.0;
+		if (pulses <= rampPulses)
+			seconds = 2.0 * sqrt(pulses * 60.0 * stepTime / 3200.0);
+		else
+			seconds = pulses * 60.0 / (3200.0 * E_vel) + E_vel * stepTime;
+	}
+	return (uint32_t)ceil(seconds * 1000.0);
+}
+
+
 /**
   * 函    数：底盘前后（按本次相对位移同步运动）
   * 参    数：mcs —— 本次前后位移(脉冲数)，正=前方，负=后方
@@ -154,50 +179,6 @@ void Move_slant2(long mcs)
 }
 
 
-
-
-
-/* 保留原来的运动接口；_Td 只增加发令前检查和发令后到位等待。
- * 零位移不重新发命令，仍检查四轮是否到位。
- */
-static Motor_Td_Result_t Move_Wait_Td(void (*move)(long), long mcs, uint8_t changedMask)
-{
-    Motor_Td_Result_t result;
-    result = Motor_Td_Prepare(0x0F, mcs != 0 ? changedMask : 0);
-    if (result != MOTOR_TD_OK) return result;
-    if (mcs != 0) move(mcs);
-    return Motor_Td_Wait();
-}
-
-Motor_Td_Result_t Move_QH_Td(long mcs)
-{
-    return Move_Wait_Td(Move_QH, mcs, 0x0F);
-}
-
-Motor_Td_Result_t Move_ZY_Td(long mcs)
-{
-    return Move_Wait_Td(Move_ZY, mcs, 0x0F);
-}
-
-Motor_Td_Result_t Move_Turn_Td(long mcs)
-{
-    return Move_Wait_Td(Move_Turn, mcs, 0x0F);
-}
-
-Motor_Td_Result_t Move_slant1_Td(long mcs)
-{
-    /* 斜向运动两轮为2*mcs，防止32位long计算溢出。 */
-    if (mcs > 1073741823L || mcs < -1073741823L)
-        return MOTOR_TD_ARGUMENT_ERROR;
-    return Move_Wait_Td(Move_slant1, mcs, 0x0A);
-}
-
-Motor_Td_Result_t Move_slant2_Td(long mcs)
-{
-    if (mcs > 1073741823L || mcs < -1073741823L)
-        return MOTOR_TD_ARGUMENT_ERROR;
-    return Move_Wait_Td(Move_slant2, mcs, 0x05);
-}
 
 
 

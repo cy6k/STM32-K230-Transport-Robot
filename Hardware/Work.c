@@ -27,20 +27,20 @@ void test_run1(void)
 	Adjust(0);
 	HWT101_ReadAndPrint();
 	
+	
 	//到原料区
 	//在底盘移动过程中，同时调整机械臂状态
+	Move_QH(11500);
+	Delay_ms(2000);
 	Adjust(90);
 	Move_QH(23000);
-	Delay_ms(2800);
-	Adjust(0);
-	Move_QH(11500);
-	Delay_ms(100);
+	Delay_ms(1000);
 	Arm_Turn(10000);
 	Delay_ms(500);
 	Arm_SX(-2500);
 	Delay_ms(500);
 	Arm_QH(25000);
-	Delay_ms(1000);
+	Delay_ms(800);
 	HWT101_ReadAndPrint();
 	
 	
@@ -83,7 +83,7 @@ void test_run1(void)
 	//到粗加工区
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(-90);
-	Move_QH(23000);
+	Move_QH(23500);
 	Delay_ms(100);
 	Arm_SX(0);
 	Delay_ms(400);
@@ -106,7 +106,7 @@ void test_run1(void)
 	//到暂存区
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(0);
-	Move_QH(11500);
+	Move_QH(11000);
 	Delay_ms(2000);
 	Adjust(90);
 	Move_QH(11500);
@@ -156,7 +156,7 @@ void test_run1(void)
 	//再到粗加工区
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(-90);
-	Move_QH(23000);
+	Move_QH(23500);
 	Delay_ms(100);
 	Arm_SX(0);
 	Delay_ms(400);
@@ -178,7 +178,7 @@ void test_run1(void)
 	//再到暂存区	
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(0);
-	Move_QH(11500);
+	Move_QH(11000);
 	Delay_ms(2000);
 	Adjust(90);
 	Move_QH(11500);
@@ -199,7 +199,7 @@ void test_run1(void)
 	put_third();
 	TJC_SetPage(3);
 	
-
+	
 	//回
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(180);
@@ -211,13 +211,14 @@ void test_run1(void)
 	Delay_ms(300);
 	Arm_Turn(0);
 	Delay_ms(2000);
-	Adjust(90);
+	Adjust(-90);
 	Move_QH(11500);
 	Delay_ms(2000);
 	Adjust(0);
-	Move_slant2(2000);
+	Move_slant1(-2000);
 	Delay_ms(1200);
 	HWT101_ReadAndPrint();
+	
 }
 
 
@@ -269,7 +270,7 @@ void test_run2(void)
 	
 	//为抓料准备
 	//在底盘移动过程中，同时调整机械臂状态
-	Move_QH(-500);
+	Move_QH(-900);
 	Delay_ms(100);
 	Arm_QH(11000);
 	Delay_ms(400);
@@ -286,7 +287,7 @@ void test_run2(void)
 	//到粗加工区
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(-90);
-	Move_QH(23000);
+	Move_QH(23500);
 	Delay_ms(100);
 	Arm_SX(0);
 	Delay_ms(400);
@@ -309,7 +310,7 @@ void test_run2(void)
 	//到暂存区
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(0);
-	Move_QH(11500);
+	Move_QH(11000);
 	Delay_ms(2000);
 	Adjust(90);
 	Move_QH(11500);
@@ -359,7 +360,7 @@ void test_run2(void)
 	//再到粗加工区
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(-90);
-	Move_QH(23000);
+	Move_QH(23500);
 	Delay_ms(100);
 	Arm_SX(0);
 	Delay_ms(400);
@@ -380,7 +381,7 @@ void test_run2(void)
 	
 	//再到暂存区	
 	Adjust(0);
-	Move_QH(11500);
+	Move_QH(11000);
 	Delay_ms(2000);
 	Adjust(90);
 	Move_QH(11500);
@@ -401,7 +402,7 @@ void test_run2(void)
 	put_third();
 	TJC_SetPage(3);
 	
-
+	
 	//回
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(180);
@@ -413,29 +414,30 @@ void test_run2(void)
 	Delay_ms(300);
 	Arm_Turn(0);
 	Delay_ms(2000);
-	Adjust(-90);
+	Adjust(90);
 	Move_QH(11500);
 	Delay_ms(2000);
 	Adjust(0);
-	Move_slant1(-2000);
+	Move_slant2(2000);
 	Delay_ms(1200);
 	HWT101_ReadAndPrint();
+	
 }
 
 
 
 
-//第一批取料：定位后首次新ID建立位置关系抓第一个，下次新ID出现后连续抓剩余两个
+//第一批取料：定位后首次z变化确定位置，连续抓三个，中途不回识别姿态
 // shortcut: 第三抓按实测预判转盘再换位一次，转速或停留时间改变时需重新确认。
 uint8_t catch_first(void)
 {
-	uint8_t i, j, source, id, lastId = 0, located = 0, temp, shift;
-	uint8_t diskId[3] = {0}; //保留三个原始ID，抓走后仍用于对齐转盘相位
+	uint8_t i, j, source, id, lastId = 0, located = 0, temp;
+	uint8_t diskId[3] = {0}; //保存首次换位后的三个颜色位置，第三抓前更新一次
 	uint32_t start;
 
 	for (i = 0; i < 3; i++)
 	{
-		if (i < 2)
+		if (i == 0)
 		{
 			Vision_SetMode(2);
 			start = GetTick();
@@ -448,9 +450,13 @@ uint8_t catch_first(void)
 					Serial_PrintStr(located ? "Catch wait timeout\r\n" : "Locate timeout\r\n");
 					return 0;
 				}
-				if (!Vision_Read_material()) continue;
+				if (located)
+				{
+					if (!Vision_Read_material_now()) continue;
+				}
+				else if (!Vision_Read_material()) continue;
 				id = (uint8_t)Material_Data[2];
-				for (j = i; j < 3; j++)
+				for (j = 0; j < 3; j++)
 					if (id == QR_Data[0][j]) break;
 				if (j == 3) continue;
 
@@ -473,26 +479,11 @@ uint8_t catch_first(void)
 				}
 
 				if (id == lastId) continue;
-				if (diskId[0] == 0)
-				{
-					//首次换位：上次ID到1号位，本次ID在2号位，剩余ID在3号位
-					diskId[0] = lastId;
-					diskId[1] = id;
-					for (j = 0; j < 3; j++)
-						if (QR_Data[0][j] != lastId && QR_Data[0][j] != id) diskId[2] = QR_Data[0][j];
-				}
-				else
-				{
-					//中间空位不发包，按下次可见ID对齐，兼容跳过一次空位停留
-					for (shift = 0; shift < 3 && diskId[1] != id; shift++)
-					{
-						temp = diskId[0];
-						diskId[0] = diskId[1];
-						diskId[1] = diskId[2];
-						diskId[2] = temp;
-					}
-				}
-				lastId = id;
+				//首次z变化：上次ID到1号位，本次ID在2号位，剩余ID在3号位
+				diskId[0] = lastId;
+				diskId[1] = id;
+				for (j = 0; j < 3; j++)
+					if (QR_Data[0][j] != lastId && QR_Data[0][j] != id) diskId[2] = QR_Data[0][j];
 				break;
 			}
 			Vision_SetMode(4);
@@ -516,26 +507,13 @@ uint8_t catch_first(void)
 				return 0;
 		}
 
-		//第一个放好后恢复识别姿态，第三个放好后保持当前位置。
-		if (i == 0)
-		{
-			Arm_Turn(0);
-			Delay_ms(200);
-			Arm_SX(-2500);
-			Delay_ms(200);
-			Arm_QH(11000);
-			Delay_ms(200);
-		}
-
 		if (i == 1)
 		{
-			Delay_ms(2000);
-			// 第二个放好时转盘已再换位一次，更新位置后直接抓第三个。
+			//前两抓用当前推算位置，第三抓按转盘再换位一次的位置。
 			temp = diskId[0];
 			diskId[0] = diskId[1];
 			diskId[1] = diskId[2];
 			diskId[2] = temp;
-			continue;
 		}
 
 	}
@@ -545,17 +523,17 @@ uint8_t catch_first(void)
 
 
 
-//第二批取料：定位后首次新ID建立位置关系抓第一个，下次新ID出现后连续抓剩余两个
+//第二批取料：定位后首次z变化确定位置，连续抓三个，中途不回识别姿态
 // shortcut: 第三抓按实测预判转盘再换位一次，转速或停留时间改变时需重新确认。
 uint8_t catch_second(void)
 {
-	uint8_t i, j, source, id, lastId = 0, located = 0, temp, shift;
-	uint8_t diskId[3] = {0}; //保留三个原始ID，抓走后仍用于对齐转盘相位
+	uint8_t i, j, source, id, lastId = 0, located = 0, temp;
+	uint8_t diskId[3] = {0}; //保存首次换位后的三个颜色位置，第三抓前更新一次
 	uint32_t start;
 
 	for (i = 0; i < 3; i++)
 	{
-		if (i < 2)
+		if (i == 0)
 		{
 			Vision_SetMode(2);
 			start = GetTick();
@@ -568,9 +546,13 @@ uint8_t catch_second(void)
 					Serial_PrintStr(located ? "Catch wait timeout\r\n" : "Locate timeout\r\n");
 					return 0;
 				}
-				if (!Vision_Read_material()) continue;
+				if (located)
+				{
+					if (!Vision_Read_material_now()) continue;
+				}
+				else if (!Vision_Read_material()) continue;
 				id = (uint8_t)Material_Data[2];
-				for (j = i; j < 3; j++)
+				for (j = 0; j < 3; j++)
 					if (id == QR_Data[2][j]) break;
 				if (j == 3) continue;
 
@@ -593,26 +575,11 @@ uint8_t catch_second(void)
 				}
 
 				if (id == lastId) continue;
-				if (diskId[0] == 0)
-				{
-					//首次换位：上次ID到1号位，本次ID在2号位，剩余ID在3号位
-					diskId[0] = lastId;
-					diskId[1] = id;
-					for (j = 0; j < 3; j++)
-						if (QR_Data[2][j] != lastId && QR_Data[2][j] != id) diskId[2] = QR_Data[2][j];
-				}
-				else
-				{
-					//中间空位不发包，按下次可见ID对齐，兼容跳过一次空位停留
-					for (shift = 0; shift < 3 && diskId[1] != id; shift++)
-					{
-						temp = diskId[0];
-						diskId[0] = diskId[1];
-						diskId[1] = diskId[2];
-						diskId[2] = temp;
-					}
-				}
-				lastId = id;
+				//首次z变化：上次ID到1号位，本次ID在2号位，剩余ID在3号位
+				diskId[0] = lastId;
+				diskId[1] = id;
+				for (j = 0; j < 3; j++)
+					if (QR_Data[2][j] != lastId && QR_Data[2][j] != id) diskId[2] = QR_Data[2][j];
 				break;
 			}
 			Vision_SetMode(4);
@@ -636,26 +603,13 @@ uint8_t catch_second(void)
 				return 0;
 		}
 
-		//第一个放好后恢复识别姿态，第三个放好后保持当前位置。
-		if (i == 0)
-		{
-			Arm_Turn(0);
-			Delay_ms(200);
-			Arm_SX(-2500);
-			Delay_ms(200);
-			Arm_QH(11000);
-			Delay_ms(200);
-		}
-
 		if (i == 1)
 		{
-			Delay_ms(2000);
-			// 第二个放好时转盘已再换位一次，更新位置后直接抓第三个。
+			//前两抓用当前推算位置，第三抓按转盘再换位一次的位置。
 			temp = diskId[0];
 			diskId[0] = diskId[1];
 			diskId[1] = diskId[2];
 			diskId[2] = temp;
-			continue;
 		}
 	}
 	Serial_PrintStr("Catch second OK\r\n");
@@ -1064,35 +1018,35 @@ void catch_11(void)
 {
 	//爪子到转盘1号
 	Arm_Turn(-650);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(28500);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘1号
 	Arm_QH(3800);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_Turn(-1350);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1101,35 +1055,35 @@ void catch_12(void)
 {
 	//爪子到转盘1号
 	Arm_Turn(-650);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(28500);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘2号
 	Arm_QH(1800);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_Turn(300);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1138,35 +1092,35 @@ void catch_13(void)
 {
 	//爪子到转盘1号
 	Arm_Turn(-650);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(28500);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘3号
 	Arm_QH(3900);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_Turn(1850);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1175,35 +1129,35 @@ void catch_21(void)
 {
 	//爪子到转盘2号
 	Arm_Turn(-50);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(12500);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘1号
 	Arm_QH(3800);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_Turn(-1350);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1212,35 +1166,35 @@ void catch_22(void)
 {
 	//爪子到转盘2号
 	Arm_Turn(-50);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(12500);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘2号
 	Arm_QH(1800);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_Turn(300);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1249,35 +1203,35 @@ void catch_23(void)
 {
 	//爪子到转盘2号
 	Arm_Turn(-50);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(12500);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘3号
 	Arm_QH(3900);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_Turn(1850);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1286,35 +1240,35 @@ void catch_31(void)
 {
 	//爪子到转盘3号
 	Arm_Turn(690);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(28100);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘1号
 	Arm_QH(3800);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_Turn(-1350);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1323,35 +1277,35 @@ void catch_32(void)
 {
 	//爪子到转盘3号
 	Arm_Turn(690);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(28100);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘2号
 	Arm_QH(1800);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_Turn(300);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1360,35 +1314,35 @@ void catch_33(void)
 {
 	//爪子到转盘3号
 	Arm_Turn(690);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(28100);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_SX(-11400);
 	Delay_ms(450);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘3号
 	Arm_QH(3900);
-	Delay_ms(450);
+	Delay_ms(200);
 	Arm_Turn(1850);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(250);
+	Delay_ms(300);
 }
 
 
@@ -1397,15 +1351,15 @@ void put1(void)
 {
 	//爪子到料盘1号
 	Arm_QH(4000);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_Turn(-1350);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(500);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起来
 	Arm_SX(-7000);
@@ -1415,13 +1369,13 @@ void put1(void)
 	Arm_Turn(-1610);
 	Delay_ms(200);
 	Arm_QH(19200);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1434,15 +1388,15 @@ void put2(void)
 {
 	//爪子到料盘2号
 	Arm_QH(1800);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_Turn(300);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(500);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起来
 	Arm_SX(-7000);
@@ -1452,13 +1406,13 @@ void put2(void)
 	Arm_Turn(20);
 	Delay_ms(200);
 	Arm_QH(14400);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1471,15 +1425,15 @@ void put3(void)
 {
 	//爪子到料盘3号
 	Arm_QH(3900);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_Turn(1850);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(500);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起来
 	Arm_SX(-7000);
@@ -1489,13 +1443,13 @@ void put3(void)
 	Arm_Turn(1680);
 	Delay_ms(200);
 	Arm_QH(18300);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1506,22 +1460,17 @@ void put3(void)
 //抓取圆环1号位放置料盘1号位
 void grap1(void)
 {
-	//先松开爪子并提起来
-	Servo_Write(25);
-	Arm_SX(-4000);
-	Delay_ms(100);
-	
 	//爪子到圆环1号
 	Arm_Turn(-1610);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(19200);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起来
 	Arm_SX(-7000);
@@ -1529,15 +1478,15 @@ void grap1(void)
 	
 	//爪子到料盘1号
 	Arm_QH(4000);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_Turn(-1350);
 	Delay_ms(200);
 	Arm_SX(-10300);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1548,22 +1497,17 @@ void grap1(void)
 //抓取圆环2号位放置料盘2号位
 void grap2(void)
 {
-	//先松开爪子并提起来
-	Servo_Write(25);
-	Arm_SX(-4000);
-	Delay_ms(100);
-	
 	//爪子到圆环2号
 	Arm_Turn(20);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(14400);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起来
 	Arm_SX(-7000);
@@ -1571,15 +1515,15 @@ void grap2(void)
 	
 	//爪子到料盘2号
 	Arm_QH(1800);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_Turn(300);
 	Delay_ms(200);
 	Arm_SX(-10300);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1590,22 +1534,17 @@ void grap2(void)
 //抓取圆环3号位放置料盘3号位
 void grap3(void)
 {
-	//先松开爪子并提起来
-	Servo_Write(25);
-	Arm_SX(-4000);
-	Delay_ms(100);
-	
 	//爪子到圆环3号
 	Arm_Turn(1680);
-	Delay_ms(300);
+	Delay_ms(200);
 	Arm_QH(18300);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//抓
 	Servo_Write(0);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//提起来
 	Arm_SX(-7000);
@@ -1613,15 +1552,15 @@ void grap3(void)
 	
 	//爪子到料盘3号
 	Arm_QH(3900);
-	Delay_ms(400);
+	Delay_ms(200);
 	Arm_Turn(1850);
 	Delay_ms(200);
 	Arm_SX(-10300);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//放
 	Servo_Write(25);
-	Delay_ms(500);
+	Delay_ms(300);
 	
 	//爪子提起来
 	Arm_SX(-4000);
