@@ -13,6 +13,7 @@
 #include "Vision_work.h"
 #include "Light.h"
 
+
 char command;
 long number;
 
@@ -40,7 +41,11 @@ int main(void)
 	Delay_ms(3000);
 	HWT_Read_Angle();					//其他初始化完成后调用，等待角度稳定并记录为零点
 	Serial_PrintStr("Waiting for work \r\n");
-	Servo_Write(30);					//所有任务初始化完成后，打开爪子，标志可以开始工作
+	Servo_Write(45);					//所有任务初始化完成后，打开爪子，标志可以开始工作
+	
+	Delay_ms(3000);						//爪子张开后3秒，再回到范围内
+	Arm_Turn(2100);
+	
 	
 	while (1)
 	{
@@ -131,39 +136,29 @@ void test(void)
 			
 			case 'o':
 			number = Serial_ParseInt();
-			if (number != 0)
-			{
-				Light_on();
-			}
-			else
-			{
-				Light_off();
-			}
-			Serial_PrintStr("Light state:");
+			Light_set(number);
+			Serial_PrintStr("Light brightness:");
 			Serial_PrintInt(number);
 			Serial_Println();
 			break;
 			
+			
 			case 'e':
 			Serial_PrintStr("Test Start");
-//			catch_first();
-			
+/*			number = Serial_ParseInt();
+			Vision_SetMode(number);
+			Serial_PrintInt(number);
+			Serial_Println();
+*/
 			put1();
 			put2();
 			put3();
+			
 			grap1();
 			grap2();
 			grap3();
-			
-			put2();
-			put1();
-			put3();
-			grap2();
-			grap1();
-			grap3();
-						
-			
 			break;
+			
 			
 			
 			case 't':
@@ -173,7 +168,7 @@ void test(void)
 			break;
 
 		
-			// 视觉调试：j=二维码，k=料盘识别，l=加工模式，m=休息
+			// 视觉调试：j=二维码，k=料盘识别，l=加工模式，p=模式5圆环，m=休息
 			case 'j':
 			// 在本case内持续接收二维码；发送m退出。
 			Vision_SetMode(1);
@@ -226,6 +221,24 @@ void test(void)
 			// 在本case内持续接收圆环数据并定位；发送m退出。
 			Vision_SetMode(3);
 			Serial_PrintStr("K230 Mode3 Ring\r\n");
+			while (1)
+			{
+				if (Serial_Available() && Serial_Read() == 'm')
+				{
+					Vision_SetMode(4);
+					Serial_PrintStr("no work\r\n");
+					break;
+				}
+				HWT101_ConfigPoll(); 	// 等待期间继续完成陀螺仪配置
+				Vision_Read_Ring();
+				orient(); 				// 需要只接收打印时，可以注释本行
+			}
+			break;
+
+			case 'p':
+			// 在本case内持续接收模式5圆环数据并定位；发送m退出。
+			Vision_SetMode(5);
+			Serial_PrintStr("K230 Mode5 Ring\r\n");
 			while (1)
 			{
 				if (Serial_Available() && Serial_Read() == 'm')

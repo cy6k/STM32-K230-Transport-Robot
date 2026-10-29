@@ -545,11 +545,11 @@ void USART3_IRQHandler(void)
 /* 旋转并校准到相对上电稳定零点的目标角度，范围 -180～180 度。
  * 先按实时角度计算最短转向；偏差大于5度时一次粗转，再相对细调至 ±0.1 度。
  * 例如当前180度、目标-90度，误差折算为+90度，不会反向绕转270度。
- * 普通转向接口加固定延时：90度档1200ms、180度档1800ms，细调400ms；随后读取新角度帧。
+ * 粗转、细调均按实际脉冲计算理论延时，不加余量；随后读取新角度帧。
  */
 void Adjust(float target_angle)
 {
-    uint32_t start, frame_tick, now, motion_tick = 0, wait_ms;
+    uint32_t start, frame_tick, now, motion_tick = 0;
     float yaw, error;
     long pulses;
     uint8_t addr, coarse = 1, need_fresh = 0, yaw_valid;
@@ -578,7 +578,7 @@ void Adjust(float target_angle)
         if (!yaw_valid || (uint32_t)(now - frame_tick) > 200U ||
             (need_fresh && (int32_t)(frame_tick - motion_tick) <= 0))
         {
-            /* 固定延时后最多等200ms接收新角度，不用转动期间留下的旧帧继续纠偏。 */
+            /* 运动延时后最多等200ms接收新角度，不用转动期间留下的旧帧继续纠偏。 */
             if (need_fresh && (uint32_t)(now - motion_tick) <= 200U)
             {
                 Delay_ms(1);
@@ -601,8 +601,6 @@ void Adjust(float target_angle)
         {
             /* 大角度只粗转一次：按实测约4125脉冲/90度换算本次相对位移。 */
             pulses = (long)(error * (4125.0f / 90.0f));
-            /* 用135度区分90/180度档，避免90度附近的小偏差误选长延时。 */
-            wait_ms = (error > 135.0f || error < -135.0f) ? 1800U : 1200U;
         }
         else
         {
@@ -610,12 +608,11 @@ void Adjust(float target_angle)
             pulses = (long)(error * (4125.0f / 90.0f) * 0.7f);
             if (pulses > 458) pulses = 458;
             if (pulses < -458) pulses = -458;
-            wait_ms = 400U;
         }
         coarse = 0;
 
         Move_Turn(pulses);
-        Delay_ms(wait_ms);
+        Delay_ms(Move_TimeMs(pulses));
         motion_tick = GetTick();
         need_fresh = 1;
     }

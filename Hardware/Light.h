@@ -3,12 +3,17 @@
 
 #include "stm32f4xx.h"
 
-// PA4 普通输出，初始化后默认关灯。
+// PA4 软件 PWM，占用 TIM7；默认关闭，标称频率 1kHz
 void Light_Init(void);
 
-// 使用前先调用 Light_Init()。
+// Brightness：0~100 对应占空比百分数，超过 100 按 100 处理
+void Light_set(uint8_t Brightness);
+
+// State：0 关闭，非 0 全亮
+void Light_Control(uint8_t State);
+
+// 原开关接口：全亮/关闭。
 void Light_on(void);
 void Light_off(void);
 
 #endif
-

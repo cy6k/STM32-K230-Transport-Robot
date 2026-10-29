@@ -18,24 +18,24 @@ static uint8_t qrConfirmCount = 0;
 static uint32_t lastReceiveCount = 0;
 static uint8_t locateActive = 0;     /* 模式2开启一轮定位，到位后清零。 */
 static uint8_t materialUpdated = 0;  /* 仅在解析到新的合法料盘帧时置位。 */
-static uint8_t orientActive = 0;     /* 模式3开启一轮圆环定位，到位后清零。 */
+static uint8_t orientActive = 0;     /* 模式3、5开启一轮圆环定位，到位后清零。 */
 static uint8_t ringUpdated = 0;      /* 仅在解析到新的合法圆环帧时置位。 */
 uint8_t QR_Data[4][3];
 int32_t Material_Data[3];
 int32_t Ring_Data[2];
 
-/* 1：二维码；2：料盘；3：粗加工区圆环；4：休息。
- * 分别发送@m1FFF、@m2FFF、@m3FFF、@m4FFF，不附加换行。
- * 清除上一模式尚未处理的接收数据；模式1清空二维码，模式2清空料盘数组，模式3清空圆环数组。
+/* 1：二维码；2：料盘；3：粗加工区圆环；4：休息；5：备用圆环（开灯）。
+ * 分别发送@m1FFF、@m2FFF、@m3FFF、@m4FFF、@m5FFF，不附加换行。
+ * 清除上一模式尚未处理的接收数据；模式1清空二维码，模式2清空料盘数组，模式3、5清空圆环数组。
  */
 void Vision_SetMode(uint8_t mode)
 {
     uint8_t content[2];
-    if (mode < 1 || mode > 4) return;
-    // 料盘识别时开灯，休息模式关灯；其余模式保留灯的状态。
-    if (mode == 2)
+    if (mode < 1 || mode > 5) return;
+    // 模式2、3、5设置50%占空比，模式4关灯；模式1保留当前亮度。
+    if (mode == 2 || mode == 3 || mode == 5)
     {
-        Light_on();
+        Light_set(50);
     }
     else if (mode == 4)
     {
@@ -48,11 +48,11 @@ void Vision_SetMode(uint8_t mode)
         qrConfirmCount = 0;
     }
     if (mode == 2) memset(Material_Data, 0, sizeof(Material_Data));
-    if (mode == 3) memset(Ring_Data, 0, sizeof(Ring_Data));
+    if (mode == 3 || mode == 5) memset(Ring_Data, 0, sizeof(Ring_Data));
     visionMode = mode;
     locateActive = (mode == 2);
     materialUpdated = 0;
-    orientActive = (mode == 3);
+    orientActive = (mode == 3 || mode == 5);
     ringUpdated = 0;
     lastReceiveCount = Timer_200ms_Count; /* 切换模式时不沿用上一阶段的计时事件 */
     content[0] = 'm';
@@ -188,11 +188,11 @@ uint8_t Vision_Read_material_now(void)
     return updated;
 }
 
-/* 模式3非阻塞接收：K230每秒发送一帧中间2号圆环与摄像头准星的差值(x,y)。
+/* 模式3/5非阻塞接收：圆环与摄像头准星的差值(x,y)。
  * 复用200ms处理节拍；未识别时K230不发数据，这里直接返回，不重复打印旧值。
  * 两个坐标均为带符号32位整数，整帧合法后再更新Ring_Data并从数组打印。
  */
-void Vision_Read_Ring(void)
+uint8_t Vision_Read_Ring(void)
 {
     static char packet[VISION_PACKET_SIZE];
     char printText[32]; /* 两个32位坐标、标点和字符串结束符最多26字节 */
@@ -200,11 +200,11 @@ void Vision_Read_Ring(void)
     int32_t data[2];
     long value;
     uint32_t count;
-    uint8_t i, valid;
+    uint8_t i, valid, updated = 0;
 
-    if (visionMode != 3) return;
+    if (visionMode != 3 && visionMode != 5) return 0;
     count = Timer_200ms_Count;
-    if (count == lastReceiveCount) return;
+    if (count == lastReceiveCount) return 0;
     lastReceiveCount = count;
 
     while (VisionSerial_ReceivePacket(packet) == 1)
@@ -239,15 +239,17 @@ void Vision_Read_Ring(void)
 
         memcpy(Ring_Data, data, sizeof(Ring_Data));
         ringUpdated = 1;
+        updated = 1;
         sprintf(printText, "(%ld,%ld)", (long)Ring_Data[0], (long)Ring_Data[1]);
         Serial_PrintStr(printText);
         Serial_Println();
     }
+    return updated;
 }
 
 /* 模式2定位：每个新帧先左右纠偏，再前后纠偏。
- * 实测换算：Move_ZY(200)使x增大约35，Move_QH(200)使y减小约50。
- * 每次按误差的80%纠偏，不限制修正脉冲；两轴均在±5内后结束本轮定位。
+ * 实测换算：Move_ZY(-200)使x减小62，Move_QH(200)使y减小66。
+ * 每次按误差的60%纠偏，不限制修正脉冲；两轴均在±5内后结束本轮定位。
  * 不使用到位检测，每轴按实际脉冲计算理论延时，不加余量，两步结束后清除旧帧，等待新帧判断。
  * 定位结束不切换视觉模式，后续仍由 Vision_Read_material() 接收、打印。 */
 void Locate(void)
@@ -272,8 +274,8 @@ void Locate(void)
         return;
     }
 
-    zy = -(float)Material_Data[0] * (200.0f / 35.0f) * 0.8f;
-    qh = (float)Material_Data[1] * (200.0f / 50.0f) * 0.8f;
+    zy = -(float)Material_Data[0] * (200.0f / 62.0f) * 0.6f;
+    qh = (float)Material_Data[1] * (200.0f / 66.0f) * 0.6f;
     if ((double)zy > LONG_MAX || (double)zy < -(double)LONG_MAX ||
         (double)qh > LONG_MAX || (double)qh < -(double)LONG_MAX)
     {
@@ -294,18 +296,18 @@ void Locate(void)
     VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
 }
 
-/* 模式3圆环定位：每个新帧先左右纠偏，再前后纠偏。
- * 实测Move_ZY(200)使x减小约20，Move_QH(200)使y增大约22。
- * 每次纠正约80%的偏差，不限制修正脉冲；两轴均在±5内后结束。
+/* 模式3/5圆环定位：每个新帧先左右纠偏，再前后纠偏。
+ * 实测Move_ZY(400)使x减小38，Move_QH(400)使y增大38。
+ * 每次纠正约60%的偏差，不限制修正脉冲；两轴均在±5内后结束。
  * 不使用到位检测，每轴按实际脉冲计算理论延时，不加余量，两步结束后清除旧帧，等待新帧判断。
- * 定位结束后继续接收和打印，重新切换模式3可再开始一轮定位。
+ * 定位结束后继续接收和打印，重新切换模式3或5可再开始一轮定位。
  */
 uint8_t orient(void)
 {
     float qh, zy;
     uint8_t addr;
 
-    if (visionMode != 3 || !orientActive || !ringUpdated) return 0;
+    if ((visionMode != 3 && visionMode != 5) || !orientActive || !ringUpdated) return 0;
     ringUpdated = 0; /* 同一帧只用于一次纠偏，初始数组清零不作为到位依据。 */
 
     if (Ring_Data[0] >= -5 && Ring_Data[0] <= 5 &&
@@ -322,8 +324,8 @@ uint8_t orient(void)
         return 1;
     }
 
-    zy = (float)Ring_Data[0] * (200.0f / 20.0f) * 0.8f;
-    qh = -(float)Ring_Data[1] * (200.0f / 22.0f) * 0.8f;
+    zy = (float)Ring_Data[0] * (400.0f / 38.0f) * 0.6f;
+    qh = -(float)Ring_Data[1] * (400.0f / 38.0f) * 0.6f;
     if ((double)zy > LONG_MAX || (double)zy < -(double)LONG_MAX ||
         (double)qh > LONG_MAX || (double)qh < -(double)LONG_MAX)
     {

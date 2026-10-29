@@ -68,7 +68,7 @@ void test_run1(void)
 	//在底盘移动过程中，同时调整机械臂状态
 	Move_QH(-500);
 	Delay_ms(100);
-	Arm_QH(11000);
+	Arm_QH(13000);
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(500);
@@ -89,15 +89,13 @@ void test_run1(void)
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(300);
-	Arm_QH(13000);
+	Arm_QH(15000);
 	Delay_ms(2000);
 
 	
 	
 	//放物料到粗加工区圆环,放完再取
 	Adjust(90);
-	Arm_QH(13000);
-	Delay_ms(500);
 	put_first();
 	grap_first();
 	
@@ -115,7 +113,7 @@ void test_run1(void)
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(200);
-	Arm_QH(13000);
+	Arm_QH(15000);
 	Delay_ms(1300);
 	
 	
@@ -134,7 +132,7 @@ void test_run1(void)
 	Delay_ms(100);
 	Arm_SX(-2500);
 	Delay_ms(400);
-	Arm_QH(11000);
+	Arm_QH(13000);
 	Delay_ms(300);
 	Arm_Turn(0);
 	Delay_ms(1200);
@@ -162,15 +160,13 @@ void test_run1(void)
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(300);
-	Arm_QH(13000);
+	Arm_QH(15000);
 	Delay_ms(2000);
 
 	
 	
 	//粗加工第二次放料取料
 	Adjust(90);
-	Arm_QH(13000);
-	Delay_ms(500);
 	put_second();
 	grap_second();
 	
@@ -187,15 +183,13 @@ void test_run1(void)
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(200);
-	Arm_QH(13000);
+	Arm_QH(15000);
 	Delay_ms(1300);
 	
 	
 	
 	//暂存区放第二批物料，重叠
 	Adjust(180);
-	Arm_QH(13000);
-	Delay_ms(500);
 	put_third();
 	TJC_SetPage(3);
 	
@@ -272,7 +266,7 @@ void test_run2(void)
 	//在底盘移动过程中，同时调整机械臂状态
 	Move_QH(-900);
 	Delay_ms(100);
-	Arm_QH(11000);
+	Arm_QH(13000);
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(500);
@@ -293,15 +287,13 @@ void test_run2(void)
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(300);
-	Arm_QH(13000);
+	Arm_QH(15000);
 	Delay_ms(2000);
 
 	
 	
 	//放物料到粗加工区圆环,放完再取
 	Adjust(90);
-	Arm_QH(13000);
-	Delay_ms(500);
 	put_first();
 	grap_first();
 	
@@ -319,7 +311,7 @@ void test_run2(void)
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(200);
-	Arm_QH(13000);
+	Arm_QH(15000);
 	Delay_ms(1300);
 	
 	
@@ -338,7 +330,7 @@ void test_run2(void)
 	Delay_ms(100);
 	Arm_SX(-2500);
 	Delay_ms(400);
-	Arm_QH(11000);
+	Arm_QH(13000);
 	Delay_ms(300);
 	Arm_Turn(0);
 	Delay_ms(1200);
@@ -366,15 +358,13 @@ void test_run2(void)
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(300);
-	Arm_QH(13000);
+	Arm_QH(15000);
 	Delay_ms(2000);
 
 	
 	
 	//粗加工第二次放料取料
 	Adjust(90);
-	Arm_QH(13000);
-	Delay_ms(500);
 	put_second();
 	grap_second();
 	
@@ -390,15 +380,13 @@ void test_run2(void)
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(200);
-	Arm_QH(13000);
+	Arm_QH(15000);
 	Delay_ms(1300);
 	
 	
 	
 	//暂存区放第二批物料，重叠
 	Adjust(180);
-	Arm_QH(13000);
-	Delay_ms(500);
 	put_third();
 	TJC_SetPage(3);
 	
@@ -769,7 +757,7 @@ uint8_t put_third(void)
 		target[i] = QR_Data[1][j];
 	}
 
-	Vision_SetMode(3);
+	Vision_SetMode(5);
 	start = GetTick();
 	while (1)
 	{
@@ -792,217 +780,217 @@ uint8_t put_third(void)
 			//车载料盘1号取料，叠放到圆环1号的同色物料上。
 			case 11:
 				Arm_QH(4000);
-				Delay_ms(400);
-				Arm_Turn(-1350);
-				Delay_ms(300);
+				Delay_ms(200);
+				Arm_Turn(-1380);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(19200);
-				Delay_ms(400);
-				Arm_Turn(-1610);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(18800);
+				Delay_ms(200);
+				Arm_Turn(-1690);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 			//车载料盘1号取料，叠放到圆环2号的同色物料上。
 			case 12:
 				Arm_QH(4000);
-				Delay_ms(400);
-				Arm_Turn(-1350);
-				Delay_ms(300);
+				Delay_ms(200);
+				Arm_Turn(-1380);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(14400);
-				Delay_ms(400);
-				Arm_Turn(20);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(13850);
+				Delay_ms(200);
+				Arm_Turn(-10);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 			//车载料盘1号取料，叠放到圆环3号的同色物料上。
 			case 13:
 				Arm_QH(4000);
-				Delay_ms(400);
-				Arm_Turn(-1350);
-				Delay_ms(300);
+				Delay_ms(200);
+				Arm_Turn(-1380);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(18300);
-				Delay_ms(400);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(18100);
+				Delay_ms(200);
 				Arm_Turn(1680);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 			//车载料盘2号取料，叠放到圆环1号的同色物料上。
 			case 21:
-				Arm_QH(1800);
-				Delay_ms(400);
-				Arm_Turn(300);
-				Delay_ms(300);
+				Arm_QH(2000);
+				Delay_ms(200);
+				Arm_Turn(270);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(19200);
-				Delay_ms(400);
-				Arm_Turn(-1610);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(18800);
+				Delay_ms(200);
+				Arm_Turn(-1690);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 			//车载料盘2号取料，叠放到圆环2号的同色物料上。
 			case 22:
-				Arm_QH(1800);
-				Delay_ms(400);
-				Arm_Turn(300);
-				Delay_ms(300);
+				Arm_QH(2000);
+				Delay_ms(200);
+				Arm_Turn(270);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(14400);
-				Delay_ms(400);
-				Arm_Turn(20);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(13850);
+				Delay_ms(200);
+				Arm_Turn(-10);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 			//车载料盘2号取料，叠放到圆环3号的同色物料上。
 			case 23:
-				Arm_QH(1800);
-				Delay_ms(400);
-				Arm_Turn(300);
-				Delay_ms(300);
+				Arm_QH(2000);
+				Delay_ms(200);
+				Arm_Turn(270);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(18300);
-				Delay_ms(400);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(18100);
+				Delay_ms(200);
 				Arm_Turn(1680);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 			//车载料盘3号取料，叠放到圆环1号的同色物料上。
 			case 31:
-				Arm_QH(3900);
-				Delay_ms(400);
-				Arm_Turn(1850);
-				Delay_ms(300);
+				Arm_QH(4000);
+				Delay_ms(200);
+				Arm_Turn(1830);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(19200);
-				Delay_ms(400);
-				Arm_Turn(-1610);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(18800);
+				Delay_ms(200);
+				Arm_Turn(-1690);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 			//车载料盘3号取料，叠放到圆环2号的同色物料上。
 			case 32:
-				Arm_QH(3900);
-				Delay_ms(400);
-				Arm_Turn(1850);
-				Delay_ms(300);
+				Arm_QH(4000);
+				Delay_ms(200);
+				Arm_Turn(1830);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(14400);
-				Delay_ms(400);
-				Arm_Turn(20);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(13850);
+				Delay_ms(200);
+				Arm_Turn(-10);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 			//车载料盘3号取料，叠放到圆环3号的同色物料上。
 			case 33:
-				Arm_QH(3900);
-				Delay_ms(400);
-				Arm_Turn(1850);
-				Delay_ms(300);
+				Arm_QH(4000);
+				Delay_ms(200);
+				Arm_Turn(1830);
+				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(500);
 				Servo_Write(0);
-				Delay_ms(500);
-				Arm_SX(-7000);
 				Delay_ms(300);
-				Arm_QH(18300);
-				Delay_ms(400);
+				Arm_SX(-7000);
+				Delay_ms(200);
+				Arm_QH(18100);
+				Delay_ms(200);
 				Arm_Turn(1680);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
-				Servo_Write(25);
-				Delay_ms(500);
+				Servo_Write(35);
+				Delay_ms(200);
 				Arm_SX(-4000);
-				Delay_ms(500);
+				Delay_ms(300);
 				break;
 
 		}
@@ -1019,9 +1007,9 @@ void catch_11(void)
 	//爪子到转盘1号
 	Arm_Turn(-650);
 	Delay_ms(200);
-	Arm_QH(28500);
+	Arm_QH(29000);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1033,16 +1021,16 @@ void catch_11(void)
 	Delay_ms(300);
 	
 	//爪子到料盘1号
-	Arm_QH(3800);
+	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(-1350);
+	Arm_Turn(-1380);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1056,9 +1044,9 @@ void catch_12(void)
 	//爪子到转盘1号
 	Arm_Turn(-650);
 	Delay_ms(200);
-	Arm_QH(28500);
+	Arm_QH(29000);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1070,16 +1058,16 @@ void catch_12(void)
 	Delay_ms(300);
 	
 	//爪子到料盘2号
-	Arm_QH(1800);
+	Arm_QH(2000);
 	Delay_ms(200);
-	Arm_Turn(300);
+	Arm_Turn(270);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1093,9 +1081,9 @@ void catch_13(void)
 	//爪子到转盘1号
 	Arm_Turn(-650);
 	Delay_ms(200);
-	Arm_QH(28500);
+	Arm_QH(29000);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1107,16 +1095,16 @@ void catch_13(void)
 	Delay_ms(300);
 	
 	//爪子到料盘3号
-	Arm_QH(3900);
+	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(1850);
+	Arm_Turn(1830);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1128,11 +1116,11 @@ void catch_13(void)
 void catch_21(void)
 {
 	//爪子到转盘2号
-	Arm_Turn(-50);
+	Arm_Turn(-30);
 	Delay_ms(200);
-	Arm_QH(12500);
+	Arm_QH(12700);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1144,16 +1132,16 @@ void catch_21(void)
 	Delay_ms(300);
 	
 	//爪子到料盘1号
-	Arm_QH(3800);
+	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(-1350);
+	Arm_Turn(-1380);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1165,11 +1153,11 @@ void catch_21(void)
 void catch_22(void)
 {
 	//爪子到转盘2号
-	Arm_Turn(-50);
+	Arm_Turn(-30);
 	Delay_ms(200);
-	Arm_QH(12500);
+	Arm_QH(12700);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1181,16 +1169,16 @@ void catch_22(void)
 	Delay_ms(300);
 	
 	//爪子到料盘2号
-	Arm_QH(1800);
+	Arm_QH(2000);
 	Delay_ms(200);
-	Arm_Turn(300);
+	Arm_Turn(270);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1202,11 +1190,11 @@ void catch_22(void)
 void catch_23(void)
 {
 	//爪子到转盘2号
-	Arm_Turn(-50);
+	Arm_Turn(-30);
 	Delay_ms(200);
-	Arm_QH(12500);
+	Arm_QH(12700);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1218,16 +1206,16 @@ void catch_23(void)
 	Delay_ms(300);
 	
 	//爪子到料盘3号
-	Arm_QH(3900);
+	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(1850);
+	Arm_Turn(1830);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1239,11 +1227,11 @@ void catch_23(void)
 void catch_31(void)
 {
 	//爪子到转盘3号
-	Arm_Turn(690);
+	Arm_Turn(670);
 	Delay_ms(200);
-	Arm_QH(28100);
+	Arm_QH(28500);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1255,16 +1243,16 @@ void catch_31(void)
 	Delay_ms(300);
 	
 	//爪子到料盘1号
-	Arm_QH(3800);
+	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(-1350);
+	Arm_Turn(-1380);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1276,11 +1264,11 @@ void catch_31(void)
 void catch_32(void)
 {
 	//爪子到转盘3号
-	Arm_Turn(690);
+	Arm_Turn(670);
 	Delay_ms(200);
-	Arm_QH(28100);
+	Arm_QH(28500);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1292,16 +1280,16 @@ void catch_32(void)
 	Delay_ms(300);
 	
 	//爪子到料盘2号
-	Arm_QH(1800);
+	Arm_QH(2000);
 	Delay_ms(200);
-	Arm_Turn(300);
+	Arm_Turn(270);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1313,11 +1301,11 @@ void catch_32(void)
 void catch_33(void)
 {
 	//爪子到转盘3号
-	Arm_Turn(690);
+	Arm_Turn(670);
 	Delay_ms(200);
-	Arm_QH(28100);
+	Arm_QH(28500);
 	Delay_ms(200);
-	Arm_SX(-11400);
+	Arm_SX(-11300);
 	Delay_ms(450);
 	
 	//抓
@@ -1329,16 +1317,16 @@ void catch_33(void)
 	Delay_ms(300);
 	
 	//爪子到料盘3号
-	Arm_QH(3900);
+	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(1850);
+	Arm_Turn(1830);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
@@ -1352,7 +1340,7 @@ void put1(void)
 	//爪子到料盘1号
 	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(-1350);
+	Arm_Turn(-1380);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(500);
@@ -1366,16 +1354,16 @@ void put1(void)
 	Delay_ms(300);
 	
 	//爪子到圆环1号
-	Arm_Turn(-1610);
+	Arm_Turn(-1690);
 	Delay_ms(200);
-	Arm_QH(19200);
+	Arm_QH(18800);
 	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1387,9 +1375,9 @@ void put1(void)
 void put2(void)
 {
 	//爪子到料盘2号
-	Arm_QH(1800);
+	Arm_QH(2000);
 	Delay_ms(200);
-	Arm_Turn(300);
+	Arm_Turn(270);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(500);
@@ -1403,16 +1391,16 @@ void put2(void)
 	Delay_ms(300);
 	
 	//爪子到圆环2号
-	Arm_Turn(20);
+	Arm_Turn(-10);
 	Delay_ms(200);
-	Arm_QH(14400);
+	Arm_QH(13850);
 	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1424,9 +1412,9 @@ void put2(void)
 void put3(void)
 {
 	//爪子到料盘3号
-	Arm_QH(3900);
+	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(1850);
+	Arm_Turn(1830);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(500);
@@ -1442,14 +1430,14 @@ void put3(void)
 	//爪子到圆环3号
 	Arm_Turn(1680);
 	Delay_ms(200);
-	Arm_QH(18300);
+	Arm_QH(18100);
 	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1461,9 +1449,9 @@ void put3(void)
 void grap1(void)
 {
 	//爪子到圆环1号
-	Arm_Turn(-1610);
+	Arm_Turn(-1690);
 	Delay_ms(200);
-	Arm_QH(19200);
+	Arm_QH(18800);
 	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
@@ -1479,14 +1467,14 @@ void grap1(void)
 	//爪子到料盘1号
 	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(-1350);
+	Arm_Turn(-1380);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1498,9 +1486,9 @@ void grap1(void)
 void grap2(void)
 {
 	//爪子到圆环2号
-	Arm_Turn(20);
+	Arm_Turn(-10);
 	Delay_ms(200);
-	Arm_QH(14400);
+	Arm_QH(13850);
 	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
@@ -1514,16 +1502,16 @@ void grap2(void)
 	Delay_ms(450);
 	
 	//爪子到料盘2号
-	Arm_QH(1800);
+	Arm_QH(2000);
 	Delay_ms(200);
-	Arm_Turn(300);
+	Arm_Turn(270);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 	
 	//爪子提起来
 	Arm_SX(-4000);
@@ -1537,7 +1525,7 @@ void grap3(void)
 	//爪子到圆环3号
 	Arm_Turn(1680);
 	Delay_ms(200);
-	Arm_QH(18300);
+	Arm_QH(18100);
 	Delay_ms(200);
 	Arm_SX(-19400);
 	Delay_ms(500);
@@ -1551,16 +1539,16 @@ void grap3(void)
 	Delay_ms(450);
 	
 	//爪子到料盘3号
-	Arm_QH(3900);
+	Arm_QH(4000);
 	Delay_ms(200);
-	Arm_Turn(1850);
+	Arm_Turn(1830);
 	Delay_ms(200);
 	Arm_SX(-10300);
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(25);
-	Delay_ms(300);
+	Servo_Write(35);
+	Delay_ms(200);
 	
 	//爪子提起来
 	Arm_SX(-4000);
