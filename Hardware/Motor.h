@@ -31,8 +31,9 @@ void Move_slant2(long mcs);    // 正时右下，负时左上
 
 
 //任意角度平移：-180~180度，0前、90右、-90左；mcs为合成位移，负数反向
-//不等待到位；0脉冲、非法角度或四轮脉冲超出long范围时不发令
-void Move(float angle, long mcs);
+//speed为最快轮速度1~5000RPM，acceleration为加速档位0~255，0为直接启动
+//不等待到位，返回四轮理论用时(ms)，不加余量；未发令返回0
+uint32_t Move(float angle, long mcs, uint16_t speed, uint8_t acceleration);
 
 #endif
 

@@ -36,3 +36,6 @@ JLink*.log
 # Windows local metadata
 Thumbs.db
 Desktop.ini
+
+# Local VS Code settings containing machine-specific paths
+/.vscode/settings.json

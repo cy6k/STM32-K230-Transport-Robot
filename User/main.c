@@ -14,8 +14,10 @@
 #include "Light.h"
 
 
+
 char command;
 long number;
+
 
 
 int main(void)
@@ -26,7 +28,7 @@ int main(void)
 	Serial_Init();						//USART1(PA9=TX / PA10=RX)，DAP调试口
 	HWT101_Init();						//陀螺仪初始化
 	Servo_Init();						//舵机初始化
-	Light_Init();						// 补光灯初始化，PA4，默认关闭
+	Light_Init();						// 补光灯初始化，PB0 硬件 PWM，默认关闭
 	VisionSerial_Init();				// UART4：PA0/PA1，115200，连接 K230 视觉模块
 	TJC_USART6_Init();					// USART6: PC6/PC7, 9600, 串口屏
 	Delay_ms(500);						//等电机自检完成
@@ -78,7 +80,7 @@ int main(void)
 void test(void)
 {
 	uint8_t group, i;
-	long angle;
+	long angle, speed, acceleration;
 	if(Serial_Available())
 	{
 		command = Serial_Read();
@@ -116,11 +118,22 @@ void test(void)
 			case 'n':
 			angle = Serial_ParseInt();
 			number = Serial_ParseInt();
-			Move(angle, number);
+			speed = Serial_ParseInt();
+			acceleration = Serial_ParseInt();
+			if (speed < 1 || speed > 5000 || acceleration < 0 || acceleration > 255)
+			{
+				Serial_PrintStr("Move speed: 1..5000, acceleration: 0..255\r\n");
+				break;
+			}
+			Move(angle, number, (uint16_t)speed, (uint8_t)acceleration);
 			Serial_PrintStr("Move angle:");
 			Serial_PrintInt(angle);
 			Serial_PrintStr(" pulses:");
 			Serial_PrintInt(number);
+			Serial_PrintStr(" speed:");
+			Serial_PrintInt(speed);
+			Serial_PrintStr(" acceleration:");
+			Serial_PrintInt(acceleration);
 			Serial_Println();
 			break;
 			
@@ -145,18 +158,20 @@ void test(void)
 			
 			case 'e':
 			Serial_PrintStr("Test Start");
-/*			number = Serial_ParseInt();
+			number = Serial_ParseInt();
 			Vision_SetMode(number);
+			Serial_PrintStr("SetMode:");
 			Serial_PrintInt(number);
 			Serial_Println();
-*/
-			put1();
+
+/*			put1();
 			put2();
 			put3();
 			
 			grap1();
 			grap2();
 			grap3();
+*/
 			break;
 			
 			

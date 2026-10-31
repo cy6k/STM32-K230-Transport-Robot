@@ -789,9 +789,9 @@ uint8_t put_third(void)
 				Delay_ms(300);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(18800);
+				Arm_QH(19600);
 				Delay_ms(200);
-				Arm_Turn(-1690);
+				Arm_Turn(-1630);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -813,9 +813,9 @@ uint8_t put_third(void)
 				Delay_ms(300);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(13850);
+				Arm_QH(14600);
 				Delay_ms(200);
-				Arm_Turn(-10);
+				Arm_Turn(-15);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -839,7 +839,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(18100);
 				Delay_ms(200);
-				Arm_Turn(1680);
+				Arm_Turn(1650);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -861,9 +861,9 @@ uint8_t put_third(void)
 				Delay_ms(300);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(18800);
+				Arm_QH(19600);
 				Delay_ms(200);
-				Arm_Turn(-1690);
+				Arm_Turn(-1630);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -885,9 +885,9 @@ uint8_t put_third(void)
 				Delay_ms(300);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(13850);
+				Arm_QH(14600);
 				Delay_ms(200);
-				Arm_Turn(-10);
+				Arm_Turn(-15);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -911,7 +911,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(18100);
 				Delay_ms(200);
-				Arm_Turn(1680);
+				Arm_Turn(1650);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -933,9 +933,9 @@ uint8_t put_third(void)
 				Delay_ms(300);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(18800);
+				Arm_QH(19600);
 				Delay_ms(200);
-				Arm_Turn(-1690);
+				Arm_Turn(-1630);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -957,9 +957,9 @@ uint8_t put_third(void)
 				Delay_ms(300);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(13850);
+				Arm_QH(14600);
 				Delay_ms(200);
-				Arm_Turn(-10);
+				Arm_Turn(-15);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -983,7 +983,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(18100);
 				Delay_ms(200);
-				Arm_Turn(1680);
+				Arm_Turn(1650);
 				Delay_ms(200);
 				Arm_SX(-13600);
 				Delay_ms(500);
@@ -1354,11 +1354,11 @@ void put1(void)
 	Delay_ms(300);
 	
 	//爪子到圆环1号
-	Arm_Turn(-1690);
+	Arm_Turn(-1630);
 	Delay_ms(200);
-	Arm_QH(18800);
+	Arm_QH(19600);
 	Delay_ms(200);
-	Arm_SX(-19400);
+	Arm_SX(-19500);
 	Delay_ms(500);
 	
 	//放
@@ -1391,11 +1391,11 @@ void put2(void)
 	Delay_ms(300);
 	
 	//爪子到圆环2号
-	Arm_Turn(-10);
+	Arm_Turn(-15);
 	Delay_ms(200);
-	Arm_QH(13850);
+	Arm_QH(14600);
 	Delay_ms(200);
-	Arm_SX(-19400);
+	Arm_SX(-19500);
 	Delay_ms(500);
 	
 	//放
@@ -1428,11 +1428,11 @@ void put3(void)
 	Delay_ms(300);
 	
 	//爪子到圆环3号
-	Arm_Turn(1680);
+	Arm_Turn(1650);
 	Delay_ms(200);
 	Arm_QH(18100);
 	Delay_ms(200);
-	Arm_SX(-19400);
+	Arm_SX(-19500);
 	Delay_ms(500);
 	
 	//放
@@ -1449,11 +1449,11 @@ void put3(void)
 void grap1(void)
 {
 	//爪子到圆环1号
-	Arm_Turn(-1690);
+	Arm_Turn(-1630);
 	Delay_ms(200);
-	Arm_QH(18800);
+	Arm_QH(19600);
 	Delay_ms(200);
-	Arm_SX(-19400);
+	Arm_SX(-19500);
 	Delay_ms(500);
 	
 	//抓
@@ -1486,11 +1486,11 @@ void grap1(void)
 void grap2(void)
 {
 	//爪子到圆环2号
-	Arm_Turn(-10);
+	Arm_Turn(-15);
 	Delay_ms(200);
-	Arm_QH(13850);
+	Arm_QH(14600);
 	Delay_ms(200);
-	Arm_SX(-19400);
+	Arm_SX(-19500);
 	Delay_ms(500);
 	
 	//抓
@@ -1523,11 +1523,11 @@ void grap2(void)
 void grap3(void)
 {
 	//爪子到圆环3号
-	Arm_Turn(1680);
+	Arm_Turn(1650);
 	Delay_ms(200);
 	Arm_QH(18100);
 	Delay_ms(200);
-	Arm_SX(-19400);
+	Arm_SX(-19500);
 	Delay_ms(500);
 	
 	//抓

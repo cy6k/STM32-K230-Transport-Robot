@@ -3,7 +3,7 @@
 
 #include "stm32f4xx.h"
 
-// PA4 软件 PWM，占用 TIM7；默认关闭，标称频率 1kHz
+// PB0 硬件 PWM（TIM3_CH3，AF2），独占 TIM3；默认关闭，频率 20kHz
 void Light_Init(void);
 
 // Brightness：0~100 对应占空比百分数，超过 100 按 100 处理

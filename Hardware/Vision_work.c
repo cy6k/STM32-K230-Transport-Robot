@@ -12,10 +12,11 @@
 #include <stdio.h>
 #include <errno.h>
 #include <limits.h>
+#include <math.h>
 
 static uint8_t visionMode = 0;
 static uint8_t qrConfirmCount = 0;
-static uint32_t lastReceiveCount = 0;
+static uint32_t calibrateStartTick = 0; /* 从发送校准模式到定位完成的毫秒计时。 */
 static uint8_t locateActive = 0;     /* 模式2开启一轮定位，到位后清零。 */
 static uint8_t materialUpdated = 0;  /* 仅在解析到新的合法料盘帧时置位。 */
 static uint8_t orientActive = 0;     /* 模式3、5开启一轮圆环定位，到位后清零。 */
@@ -54,10 +55,12 @@ void Vision_SetMode(uint8_t mode)
     materialUpdated = 0;
     orientActive = (mode == 3 || mode == 5);
     ringUpdated = 0;
-    lastReceiveCount = Timer_200ms_Count; /* 切换模式时不沿用上一阶段的计时事件 */
+    if (mode == 2 || mode == 3 || mode == 5) calibrateStartTick = GetTick();
     content[0] = 'm';
     content[1] = (uint8_t)('0' + mode);
     VisionSerial_SendPacket(content, 2);
+    if (mode == 2) Serial_PrintStr("Locate Start\r\n");
+    else if (mode == 3 || mode == 5) Serial_PrintStr("orient Start\r\n");
 }
 
 /* 模式1：每次处理一帧，未收到或尚未确认时立即返回0，供case j循环调用。
@@ -115,24 +118,17 @@ uint8_t Vision_Read_QR(void)
     return 1;
 }
 
-/* 模式2非阻塞接收：TIM6每200ms产生一个处理周期，对应K230每秒5帧。
- * 到时读取已经收到的完整帧，没有完整帧就返回，不等待下一帧。
+/* 模式2非阻塞接收：完整帧到达就处理，没有完整帧就返回，不额外等待200ms节拍。
  * 每帧只接受一组(x,y,z)：x、y为带符号32位整数，z为颜色编号1~6。
  * 先解析到临时数组，三个值全部合法后再整体更新Material_Data。
  * 打印时从Material_Data取值，便于核对实际记录结果；错误帧不覆盖旧数据。
  */
 uint8_t Vision_Read_material(void)
 {
-    uint32_t count;
-
-    if (visionMode != 2) return 0;
-    count = Timer_200ms_Count;
-    if (count == lastReceiveCount) return 0;
-    lastReceiveCount = count;
     return Vision_Read_material_now();
 }
 
-/* 定位后等换位时立即处理新帧，不再额外等待200ms节拍。 */
+/* 定位和等待料盘换位共用同一套完整帧解析。 */
 uint8_t Vision_Read_material_now(void)
 {
     static char packet[VISION_PACKET_SIZE];
@@ -189,7 +185,7 @@ uint8_t Vision_Read_material_now(void)
 }
 
 /* 模式3/5非阻塞接收：圆环与摄像头准星的差值(x,y)。
- * 复用200ms处理节拍；未识别时K230不发数据，这里直接返回，不重复打印旧值。
+ * 完整帧到达就处理；未识别时K230不发数据，这里直接返回，不重复打印旧值。
  * 两个坐标均为带符号32位整数，整帧合法后再更新Ring_Data并从数组打印。
  */
 uint8_t Vision_Read_Ring(void)
@@ -199,13 +195,9 @@ uint8_t Vision_Read_Ring(void)
     char *text, *end;
     int32_t data[2];
     long value;
-    uint32_t count;
     uint8_t i, valid, updated = 0;
 
     if (visionMode != 3 && visionMode != 5) return 0;
-    count = Timer_200ms_Count;
-    if (count == lastReceiveCount) return 0;
-    lastReceiveCount = count;
 
     while (VisionSerial_ReceivePacket(packet) == 1)
     {
@@ -247,14 +239,16 @@ uint8_t Vision_Read_Ring(void)
     return updated;
 }
 
-/* 模式2定位：每个新帧先左右纠偏，再前后纠偏。
+/* 模式2定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位120。
  * 实测换算：Move_ZY(-200)使x减小62，Move_QH(200)使y减小66。
- * 每次按误差的60%纠偏，不限制修正脉冲；两轴均在±5内后结束本轮定位。
- * 不使用到位检测，每轴按实际脉冲计算理论延时，不加余量，两步结束后清除旧帧，等待新帧判断。
+ * 每轴误差超过15时修正80%，否则修正50%，不限制修正脉冲；两轴均在±5内后结束本轮定位。
+ * 不使用到位检测，每轴按Move返回的理论时间加20ms延时，两轴处理后清除旧帧，等待新帧判断。
  * 定位结束不切换视觉模式，后续仍由 Vision_Read_material() 接收、打印。 */
 void Locate(void)
 {
     float qh, zy;
+    uint32_t timeMs;
+    char printText[40];
     uint8_t addr;
 
     if (visionMode != 2 || !locateActive || !materialUpdated) return;
@@ -270,14 +264,17 @@ void Locate(void)
             Emm_V5_Stop_Now(addr, false);
             Delay_ms(1);
         }
-        Serial_PrintStr("Locate OK\r\n");
+        sprintf(printText, "Locate OK, time: %lu ms\r\n",
+                (unsigned long)(GetTick() - calibrateStartTick));
+        Serial_PrintStr(printText);
         return;
     }
 
-    zy = -(float)Material_Data[0] * (200.0f / 62.0f) * 0.6f;
-    qh = (float)Material_Data[1] * (200.0f / 66.0f) * 0.6f;
-    if ((double)zy > LONG_MAX || (double)zy < -(double)LONG_MAX ||
-        (double)qh > LONG_MAX || (double)qh < -(double)LONG_MAX)
+    zy = -(float)Material_Data[0] * (200.0f / 62.0f) *
+         ((Material_Data[0] > 15 || Material_Data[0] < -15) ? 0.8f : 0.5f);
+    qh = (float)Material_Data[1] * (200.0f / 66.0f) *
+         ((Material_Data[1] > 15 || Material_Data[1] < -15) ? 0.8f : 0.5f);
+    if (fabs((double)zy) > (double)LONG_MAX || fabs((double)qh) > (double)LONG_MAX)
     {
         VisionSerial_ResetReceiver();
         return;
@@ -285,26 +282,28 @@ void Locate(void)
 
     if (Material_Data[0] > 5 || Material_Data[0] < -5)
     {
-        Move_ZY((long)zy);
-        Delay_ms(Move_TimeMs((long)zy));
+        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 120);
+        Delay_ms(timeMs + 20);
     }
     if (Material_Data[1] > 5 || Material_Data[1] < -5)
     {
-        Move_QH((long)qh);
-        Delay_ms(Move_TimeMs((long)qh));
+        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 120);
+        Delay_ms(timeMs + 20);
     }
     VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
 }
 
-/* 模式3/5圆环定位：每个新帧先左右纠偏，再前后纠偏。
+/* 模式3/5圆环定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位80。
  * 实测Move_ZY(400)使x减小38，Move_QH(400)使y增大38。
- * 每次纠正约60%的偏差，不限制修正脉冲；两轴均在±5内后结束。
- * 不使用到位检测，每轴按实际脉冲计算理论延时，不加余量，两步结束后清除旧帧，等待新帧判断。
+ * 每轴误差超过15时修正80%，否则修正50%，不限制修正脉冲；两轴均在±5内后结束。
+ * 不使用到位检测，每轴按Move返回的理论时间加20ms延时，两轴处理后清除旧帧，等待新帧判断。
  * 定位结束后继续接收和打印，重新切换模式3或5可再开始一轮定位。
  */
 uint8_t orient(void)
 {
     float qh, zy;
+    uint32_t timeMs;
+    char printText[40];
     uint8_t addr;
 
     if ((visionMode != 3 && visionMode != 5) || !orientActive || !ringUpdated) return 0;
@@ -320,14 +319,17 @@ uint8_t orient(void)
             Emm_V5_Stop_Now(addr, false);
             Delay_ms(1);
         }
-        Serial_PrintStr("orient OK\r\n");
+        sprintf(printText, "orient OK, time: %lu ms\r\n",
+                (unsigned long)(GetTick() - calibrateStartTick));
+        Serial_PrintStr(printText);
         return 1;
     }
 
-    zy = (float)Ring_Data[0] * (400.0f / 38.0f) * 0.6f;
-    qh = -(float)Ring_Data[1] * (400.0f / 38.0f) * 0.6f;
-    if ((double)zy > LONG_MAX || (double)zy < -(double)LONG_MAX ||
-        (double)qh > LONG_MAX || (double)qh < -(double)LONG_MAX)
+    zy = (float)Ring_Data[0] * (400.0f / 38.0f) *
+         ((Ring_Data[0] > 15 || Ring_Data[0] < -15) ? 0.8f : 0.5f);
+    qh = -(float)Ring_Data[1] * (400.0f / 38.0f) *
+         ((Ring_Data[1] > 15 || Ring_Data[1] < -15) ? 0.8f : 0.5f);
+    if (fabs((double)zy) > (double)LONG_MAX || fabs((double)qh) > (double)LONG_MAX)
     {
         VisionSerial_ResetReceiver();
         return 0;
@@ -335,13 +337,13 @@ uint8_t orient(void)
 
     if (Ring_Data[0] > 5 || Ring_Data[0] < -5)
     {
-        Move_ZY((long)zy);
-        Delay_ms(Move_TimeMs((long)zy));
+        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 80);
+        Delay_ms(timeMs + 20);
     }
     if (Ring_Data[1] > 5 || Ring_Data[1] < -5)
     {
-        Move_QH((long)qh);
-        Delay_ms(Move_TimeMs((long)qh));
+        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 80);
+        Delay_ms(timeMs + 20);
     }
     VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
     return 0;
