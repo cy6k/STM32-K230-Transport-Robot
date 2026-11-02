@@ -23,7 +23,7 @@ void test_run1(void)
 
 	//出
 	Move_slant1(2000);
-	Delay_ms(1200);
+	Delay_ms(1100);
 	Adjust(0);
 	HWT101_ReadAndPrint();
 	
@@ -31,21 +31,18 @@ void test_run1(void)
 	//到原料区
 	//在底盘移动过程中，同时调整机械臂状态
 	Move_QH(11500);
-	Delay_ms(2000);
+	Delay_ms(1900);
 	Adjust(90);
 	Move_QH(23000);
 	Delay_ms(1000);
-	Arm_Turn(10000);
+	Arm_Turn(1500);
 	Delay_ms(500);
 	Arm_SX(-2500);
 	Delay_ms(500);
 	Arm_QH(25000);
-	Delay_ms(800);
+	Delay_ms(600);
 	HWT101_ReadAndPrint();
-	
-	
-	//转动到扫描二维码角度
-	Adjust(-90);
+		
 	
 	
 	//扫描二维码,记录数据
@@ -66,12 +63,13 @@ void test_run1(void)
 	
 	//为抓料准备
 	//在底盘移动过程中，同时调整机械臂状态
-	Move_QH(-200);
+	Move_QH(200);
 	Delay_ms(100);
 	Arm_QH(13000);
 	Delay_ms(400);
 	Arm_Turn(0);
-	Delay_ms(500);
+	Delay_ms(300);
+	Adjust(-90);
 	
 	
 	
@@ -90,7 +88,7 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(300);
 	Arm_QH(15000);
-	Delay_ms(2000);
+	Delay_ms(1800);
 
 	
 	
@@ -105,7 +103,7 @@ void test_run1(void)
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(0);
 	Move_QH(11000);
-	Delay_ms(2000);
+	Delay_ms(1800);
 	Adjust(90);
 	Move_QH(11500);
 	Delay_ms(100);
@@ -114,7 +112,7 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(200);
 	Arm_QH(15000);
-	Delay_ms(1300);
+	Delay_ms(1200);
 	
 	
 	
@@ -135,10 +133,10 @@ void test_run1(void)
 	Arm_QH(13000);
 	Delay_ms(300);
 	Arm_Turn(0);
-	Delay_ms(1200);
+	Delay_ms(1100);
 	Adjust(180);
 	Move_QH(11500);
-	Delay_ms(2000);
+	Delay_ms(1900);
 	
 	
 	//准备原料区第二次取料
@@ -161,7 +159,7 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(300);
 	Arm_QH(15000);
-	Delay_ms(2000);
+	Delay_ms(1800);
 
 	
 	
@@ -175,7 +173,7 @@ void test_run1(void)
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(0);
 	Move_QH(11000);
-	Delay_ms(2000);
+	Delay_ms(1800);
 	Adjust(90);
 	Move_QH(11500);
 	Delay_ms(100);
@@ -184,7 +182,7 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(200);
 	Arm_QH(15000);
-	Delay_ms(1300);
+	Delay_ms(1200);
 	
 	
 	
@@ -204,13 +202,13 @@ void test_run1(void)
 	Arm_QH(0);
 	Delay_ms(300);
 	Arm_Turn(0);
-	Delay_ms(2000);
+	Delay_ms(1800);
 	Adjust(-90);
 	Move_QH(11500);
-	Delay_ms(2000);
+	Delay_ms(1900);
 	Adjust(0);
 	Move_slant1(-2000);
-	Delay_ms(1200);
+	Delay_ms(1100);
 	HWT101_ReadAndPrint();
 	
 }
@@ -225,7 +223,7 @@ void test_run2(void)
 
 	//出
 	Move_slant2(-2000);
-	Delay_ms(1200);
+	Delay_ms(1100);
 	Adjust(0);
 	HWT101_ReadAndPrint();
 	
@@ -238,7 +236,7 @@ void test_run2(void)
 	Arm_SX(-2500);
 	Delay_ms(500);
 	Arm_QH(25000);
-	Delay_ms(1000);
+	Delay_ms(800);
 	HWT101_ReadAndPrint();
 	
 	
@@ -288,7 +286,7 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(300);
 	Arm_QH(15000);
-	Delay_ms(2000);
+	Delay_ms(1800);
 
 	
 	
@@ -303,7 +301,7 @@ void test_run2(void)
 	//在底盘移动过程中，同时调整机械臂状态
 	Adjust(0);
 	Move_QH(11000);
-	Delay_ms(2000);
+	Delay_ms(1800);
 	Adjust(90);
 	Move_QH(11500);
 	Delay_ms(100);
@@ -312,7 +310,7 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(200);
 	Arm_QH(15000);
-	Delay_ms(1300);
+	Delay_ms(1200);
 	
 	
 	
@@ -333,10 +331,10 @@ void test_run2(void)
 	Arm_QH(13000);
 	Delay_ms(300);
 	Arm_Turn(0);
-	Delay_ms(1200);
+	Delay_ms(1100);
 	Adjust(180);
 	Move_QH(11500);
-	Delay_ms(2000);
+	Delay_ms(1900);
 	
 	
 	//准备原料区第二次取料
@@ -359,7 +357,7 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(300);
 	Arm_QH(15000);
-	Delay_ms(2000);
+	Delay_ms(1800);
 
 	
 	
@@ -372,7 +370,7 @@ void test_run2(void)
 	//再到暂存区	
 	Adjust(0);
 	Move_QH(11000);
-	Delay_ms(2000);
+	Delay_ms(1800);
 	Adjust(90);
 	Move_QH(11500);
 	Delay_ms(100);
@@ -381,7 +379,7 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(200);
 	Arm_QH(15000);
-	Delay_ms(1300);
+	Delay_ms(1200);
 	
 	
 	
@@ -401,13 +399,13 @@ void test_run2(void)
 	Arm_QH(0);
 	Delay_ms(300);
 	Arm_Turn(0);
-	Delay_ms(2000);
+	Delay_ms(1800);
 	Adjust(90);
 	Move_QH(11500);
-	Delay_ms(2000);
+	Delay_ms(1900);
 	Adjust(0);
 	Move_slant2(2000);
-	Delay_ms(1200);
+	Delay_ms(1100);
 	HWT101_ReadAndPrint();
 	
 }
@@ -450,17 +448,10 @@ uint8_t catch_first(void)
 
 				if (!located)
 				{
-					if (Material_Data[0] >= -10 && Material_Data[0] <= 10 &&
-						Material_Data[1] >= -10 && Material_Data[1] <= 10)
+					if (Locate())
 					{
-						Locate();
 						located = 1;
 						start = GetTick();
-					}
-					else
-					{
-						Locate();
-						VisionSerial_ResetReceiver();
 					}
 					lastId = id;
 					continue;
@@ -546,17 +537,10 @@ uint8_t catch_second(void)
 
 				if (!located)
 				{
-					if (Material_Data[0] >= -10 && Material_Data[0] <= 10 &&
-						Material_Data[1] >= -10 && Material_Data[1] <= 10)
+					if (Locate())
 					{
-						Locate();
 						located = 1;
 						start = GetTick();
-					}
-					else
-					{
-						Locate();
-						VisionSerial_ResetReceiver();
 					}
 					lastId = id;
 					continue;
@@ -1358,7 +1342,7 @@ void put1(void)
 	Delay_ms(100);
 	Arm_QH(19600);
 	Delay_ms(200);
-	Arm_SX(-19500);
+	Arm_SX(-19700);
 	Delay_ms(500);
 	
 	//放
@@ -1395,7 +1379,7 @@ void put2(void)
 	Delay_ms(100);
 	Arm_QH(14600);
 	Delay_ms(200);
-	Arm_SX(-19500);
+	Arm_SX(-19700);
 	Delay_ms(500);
 	
 	//放
@@ -1432,7 +1416,7 @@ void put3(void)
 	Delay_ms(100);
 	Arm_QH(18100);
 	Delay_ms(200);
-	Arm_SX(-19500);
+	Arm_SX(-19700);
 	Delay_ms(500);
 	
 	//放

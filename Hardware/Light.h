@@ -9,11 +9,7 @@ void Light_Init(void);
 // Brightness：0~100 对应占空比百分数，超过 100 按 100 处理
 void Light_set(uint8_t Brightness);
 
-// State：0 关闭，非 0 全亮
-void Light_Control(uint8_t State);
-
-// 原开关接口：全亮/关闭。
-void Light_on(void);
+// 关闭补光灯。
 void Light_off(void);
 
 #endif

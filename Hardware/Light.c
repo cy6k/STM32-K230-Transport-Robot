@@ -71,17 +71,7 @@ void Light_set(uint8_t Brightness)
     TIM_SetCompare3(TIM3, Brightness);
 }
 
-void Light_Control(uint8_t State)
-{
-    Light_set(State != 0 ? 100 : 0);
-}
-
-// 保留原开关接口：全亮/关闭。
-void Light_on(void)
-{
-    Light_set(100);
-}
-
+// 关闭补光灯。
 void Light_off(void)
 {
     Light_set(0);

@@ -4,28 +4,19 @@
 /**********************************************************
 ***	张大头 Emm_V5.0 通讯串口 —— 本板移植版 (USART2, PA2/PA3)
 ***	原例程为 USART1(PA9/PA10)，仅把外设与引脚换成 USART2，
-***	收发逻辑与官方完全一致：
-***	  接收 = RXNE 中断逐字节入 FIFO，IDLE 中断判定一帧结束
+***	电机口只发送控制指令，不接收反馈：
 ***	  发送 = 轮询 TXE，带 8000 次超时保护，不会死等
 **********************************************************/
 
-__IO bool rxFrameFlag = false;
-__IO uint8_t rxCmd[FIFO_SIZE] = {0};
-__IO uint8_t rxCount = 0;
-
 /**
-	* @brief   初始化USART2 (PA2 = TX, PA3 = RX)
+	* @brief   初始化USART2 (PA2 = TX，只发送)
 	* @param   无
 	* @retval  无
-	* @note    NVIC 优先级分组由 main 里的 NVIC_PriorityGroupConfig 决定，
-	*          本工程是 NVIC_PriorityGroup_2，这里用抢占1/子0，
-	*          低于 TIM6 的抢占0，保证 1ms 节拍不被串口打断。
 	*/
 void usart_init(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
-	NVIC_InitTypeDef  NVIC_InitStructure;
 
 /**********************************************************
 ***	使能时钟：GPIOA 在 AHB1，USART2 在 APB1
@@ -34,18 +25,17 @@ void usart_init(void)
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 
 /**********************************************************
-***	初始化USART2引脚：PA2 - USART2_TX、PA3 - USART2_RX
+***	初始化USART2发送引脚：PA2 - USART2_TX
 **********************************************************/
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2 | GPIO_Pin_3;
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;			/* 复用推挽输出 */
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;			/* 上拉，空闲高电平 */
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	// 将PA2、PA3复用为USART2
+	// 将PA2复用为USART2发送引脚
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);
 
 /**********************************************************
 ***	初始化USART2：115200-8-N-1，与电机菜单 UartBaud 一致
@@ -55,66 +45,11 @@ void usart_init(void)
 	USART_InitStructure.USART_StopBits            = USART_StopBits_1;
 	USART_InitStructure.USART_Parity              = USART_Parity_No;
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode                = USART_Mode_Tx | USART_Mode_Rx;
+	USART_InitStructure.USART_Mode                = USART_Mode_Tx;
 	USART_Init(USART2, &USART_InitStructure);
 
-/**********************************************************
-***	配置USART2中断
-**********************************************************/
-	NVIC_InitStructure.NVIC_IRQChannel                   = USART2_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-
-/**********************************************************
-***	清除USART2中断
-**********************************************************/
-	USART2->SR; USART2->DR;
-	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-
-/**********************************************************
-***	使能USART2中断
-**********************************************************/
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-	USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);
-
-/**********************************************************
-***	初始化接收队列并使能USART2
-**********************************************************/
-	initQueue();
+	// 电机只发送指令，不启用接收和中断。
 	USART_Cmd(USART2, ENABLE);
-}
-
-/**
-	* @brief   USART2中断函数
-	* @param   无
-	* @retval  无
-	*/
-void USART2_IRQHandler(void)
-{
-    uint32_t status = USART2->SR;
-    uint8_t data;
-    uint16_t i;
-
-    /* 先读SR再读DR，一次清除RXNE/IDLE/错误，避免IDLE分支再次读DR丢字节。 */
-    if (status & (USART_FLAG_RXNE | USART_FLAG_IDLE | USART_FLAG_ORE |
-                  USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE))
-    {
-        data = (uint8_t)USART2->DR;
-        if ((status & USART_FLAG_RXNE) &&
-            !(status & (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)))
-        {
-            fifo_enQueue(data);
-        }
-        if (status & USART_FLAG_IDLE)
-        {
-            /* 空闲中断时，将本帧数据从 FIFO 取出。 */
-            rxCount = fifo_queueLength();
-            for (i = 0; i < rxCount; i++) rxCmd[i] = fifo_deQueue();
-            rxFrameFlag = true;
-        }
-    }
 }
 
 /**
@@ -146,9 +81,6 @@ void usart_SendByte(uint16_t data)
 	}
 }
 
-volatile uint8_t  start_flag = 0;
-volatile char     start_side = '\0';
-volatile uint8_t  start_mode = 0;
 #define TJC_KEY_QUEUE_SIZE 16U
 static const char tjc_start_prefix[] = "start";
 static uint8_t tjc_idx = 0;
@@ -194,8 +126,6 @@ void TJC_USART6_Init(void)
     u.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
     USART_Init(USART6, &u);
     key_read = key_write = tjc_idx = 0;
-    start_flag = start_mode = 0;
-    start_side = '\0';
     tjc_key_dropped = 0;
     tjc_last_tick = GetTick();
     n.NVIC_IRQChannel = USART6_IRQn;
@@ -214,6 +144,7 @@ static void TJC_ReceiveByte(char ch)
 {
     uint32_t now = GetTick();
     uint8_t next;
+    uint8_t start_mode;
     if ((uint32_t)(now - tjc_last_tick) > 200U) tjc_idx = 0;
     tjc_last_tick = now;
 
@@ -235,9 +166,7 @@ static void TJC_ReceiveByte(char ch)
     {
         if (ch == '1' || ch == '2')
         {
-            start_side = tjc_side;
             start_mode = (uint8_t)(ch - '0');
-            start_flag = 1;
             next = (uint8_t)((key_write + 1U) % TJC_KEY_QUEUE_SIZE);
             if (next != key_read)
             {

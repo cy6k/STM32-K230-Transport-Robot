@@ -48,15 +48,6 @@ uint8_t  HWT101_Snapshot(HWT101_Data_t *out); /* 取一份最新数据快照(内部关中断保
 /* 收到过有效角度帧才返回 1；tick 为该帧接收时的 GetTick() 毫秒时间戳。 */
 uint8_t  HWT101_YawSnapshot(float *yaw, uint32_t *tick);
 
-void     HWT101_ZeroHere(void);               /* 把"当前朝向"设为 0 度(走直矫正前可随时重设) */
-void     HWT101_ClearZero(void);              /* 取消软件零点, 恢复模块的绝对朝向 */
-
-/* 便捷接口: 只关心某个量时用, 都是原子读, 可随时在主循环里调用 */
-float    HWT101_GetYaw(void);                 /* 偏航角(已减零点), 单位 度 */
-float    HWT101_GetGyroZ(void);               /* Z 轴角速度, 单位 度/秒 */
-uint32_t HWT101_GetCount(void);               /* 累计有效帧数 */
-uint8_t  HWT101_IsOnline(void);               /* 1=收到过有效帧, 0=一直没有 */
-
 extern volatile HWT101_Data_t g_hwt101;       /* 中断里写入, 一般请用上面的接口读取 */
 
 /* 以最短转向旋转并校准到相对上电零点的目标角度（-180～180度）。

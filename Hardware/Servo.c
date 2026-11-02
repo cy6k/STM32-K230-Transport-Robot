@@ -83,26 +83,6 @@ void Servo_Init(void)
 }
 
 /**
-  * 函    数：设置舵机脉宽
-  * 参    数：pulse_us：脉宽，单位微秒，一般 500~2500
-  * 返 回 值：无
-  * 备    注：500 对应 0°，1500 对应 90°，2500 对应 180°
-  */
-void Servo_SetPulse(uint16_t pulse_us)
-{
-    if (pulse_us < SERVO_MIN_PULSE)
-    {
-        pulse_us = SERVO_MIN_PULSE;
-    }
-    if (pulse_us > SERVO_MAX_PULSE)
-    {
-        pulse_us = SERVO_MAX_PULSE;
-    }
-
-    TIM_SetCompare1(SERVO_TIM, pulse_us);
-}
-
-/**
   * 函    数：设置舵机角度
   * 参    数：angle：角度，0~180
   * 返 回 值：无

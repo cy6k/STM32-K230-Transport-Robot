@@ -4,7 +4,7 @@
   * @brief   HWT101(维特智能 单轴陀螺仪) 串口驱动实现
   * @note    思路与工程里其它模块保持一致: 中断收数据 + 主循环非阻塞取数据。
   *          USART3_IRQHandler 里只做"收字节 + 状态机攒帧", 解析完一帧就地换算成
-  *          角度/角速度写进全局变量, 主循环随时用 HWT101_GetYaw() 取即可。
+  *          角度/角速度写进全局变量, 主循环随时用 HWT101_Snapshot() 取即可。
   *
   *          HWT101_ConfigPoll() 以非阻塞方式推进模块配置及稳定基准采集。
   *          初始化阶段调用 HWT_Read_Angle()，阻塞等待角度稳定并记录零点。
@@ -429,26 +429,6 @@ uint8_t HWT101_ConfigBusy(void)
     return (g_cfg_stage != 0 || !HWT101_ReferenceReady()) ? 1u : 0u;
 }
 
-/* ===================== 清零 ===================== */
-/* 把"当前朝向"记成 0 度。必须在车静止时调用。 */
-void HWT101_ZeroHere(void)
-{
-    uint32_t primask = __get_PRIMASK();
-    __disable_irq();
-    g_yaw_zero = g_yaw_raw;
-    g_hwt101.yaw = 0.0f;
-    __set_PRIMASK(primask);
-}
-
-void HWT101_ClearZero(void)
-{
-    uint32_t primask = __get_PRIMASK();
-    __disable_irq();
-    g_hwt101.yaw = g_yaw_raw;
-    g_yaw_zero = 0.0f;
-    __set_PRIMASK(primask);
-}
-
 /* ===================== 数据读取 ===================== */
 /* 关中断做整体拷贝: 保证 yaw / gyro_z / cnt 是同一帧时间点上的值, 不会读到"半新半旧" */
 uint8_t HWT101_Snapshot(HWT101_Data_t *out)
@@ -477,26 +457,6 @@ uint8_t HWT101_YawSnapshot(float *yaw, uint32_t *tick)
     valid = g_yaw_valid;
     __set_PRIMASK(primask);
     return valid;
-}
-
-float HWT101_GetYaw(void)
-{
-	return g_hwt101.yaw;
-}
-
-float HWT101_GetGyroZ(void)
-{
-	return g_hwt101.gyro_z;
-}
-
-uint32_t HWT101_GetCount(void)
-{
-	return g_hwt101.cnt;
-}
-
-uint8_t HWT101_IsOnline(void)
-{
-	return g_hwt101.valid;
 }
 
 /* ===================== 接收中断 ===================== */
