@@ -14,10 +14,8 @@
 #include "Light.h"
 
 
-
 char command;
 long number;
-
 
 
 int main(void)
@@ -157,27 +155,18 @@ void test(void)
 			
 			
 			case 'e':
-			Serial_PrintStr("Test Start");
 			number = Serial_ParseInt();
 			Vision_SetMode(number);
 			Serial_PrintStr("SetMode:");
 			Serial_PrintInt(number);
 			Serial_Println();
-
-/*			put1();
-			put2();
-			put3();
 			
-			grap1();
-			grap2();
-			grap3();
-*/
 			break;
 			
 			
 			
 			case 't':
-			Serial_PrintStr("Test Start 2\r\n");
+			Serial_PrintStr("Test Start \r\n");
 //			TJC_Test();
 			
 			break;

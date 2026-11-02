@@ -7,7 +7,7 @@
 
 
 #define E_vel 3000
-#define E_acc 170
+#define E_acc 180
 
 
 /*
