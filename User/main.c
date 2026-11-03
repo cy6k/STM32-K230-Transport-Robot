@@ -155,12 +155,13 @@ void test(void)
 			
 			
 			case 'e':
+			
 			number = Serial_ParseInt();
 			Vision_SetMode(number);
 			Serial_PrintStr("SetMode:");
 			Serial_PrintInt(number);
 			Serial_Println();
-			
+
 			break;
 			
 			

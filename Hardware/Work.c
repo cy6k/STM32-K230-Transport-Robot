@@ -14,6 +14,8 @@
 #include "VisionSerial.h"
 #include "Light.h"
 
+#define Grap_Delay 500 			//前两次抓放完成后，第三次抓取前的等待时间(ms)
+
 
 
 //左出发，无障碍
@@ -141,8 +143,8 @@ void test_run1(void)
 	
 	//准备原料区第二次取料
 	Adjust(-90);
-	Move_QH(-500);
-	Delay_ms(500);
+	Move_QH(-200);
+	Delay_ms(300);
 	
 	
 	//原料区第二次取料
@@ -339,8 +341,8 @@ void test_run2(void)
 	
 	//准备原料区第二次取料
 	Adjust(-90);
-	Move_QH(-500);
-	Delay_ms(500);
+	Move_QH(-200);
+	Delay_ms(300);
 	
 	
 	//原料区第二次取料
@@ -488,6 +490,7 @@ uint8_t catch_first(void)
 
 		if (i == 1)
 		{
+			Delay_ms(Grap_Delay);
 			//前两抓用当前推算位置，第三抓按转盘再换位一次的位置。
 			temp = diskId[0];
 			diskId[0] = diskId[1];
@@ -577,6 +580,7 @@ uint8_t catch_second(void)
 
 		if (i == 1)
 		{
+			Delay_ms(Grap_Delay);
 			//前两抓用当前推算位置，第三抓按转盘再换位一次的位置。
 			temp = diskId[0];
 			diskId[0] = diskId[1];
@@ -1014,11 +1018,11 @@ void catch_11(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
@@ -1051,11 +1055,11 @@ void catch_12(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
@@ -1088,11 +1092,11 @@ void catch_13(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
@@ -1125,11 +1129,11 @@ void catch_21(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
@@ -1162,11 +1166,11 @@ void catch_22(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
@@ -1199,11 +1203,11 @@ void catch_23(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
@@ -1236,11 +1240,11 @@ void catch_31(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
@@ -1273,11 +1277,11 @@ void catch_32(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
@@ -1310,11 +1314,11 @@ void catch_33(void)
 	
 	//放
 	Servo_Write(35);
-	Delay_ms(200);
+	Delay_ms(150);
 		
 	//爪子提高到一定高度
 	Arm_SX(-2500);
-	Delay_ms(300);
+	Delay_ms(250);
 }
 
 
