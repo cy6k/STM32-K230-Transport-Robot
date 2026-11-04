@@ -161,7 +161,7 @@ void test(void)
 			Serial_PrintStr("SetMode:");
 			Serial_PrintInt(number);
 			Serial_Println();
-
+			
 			break;
 			
 			

@@ -262,7 +262,7 @@ uint8_t Vision_Read_Ring(void)
     return updated;
 }
 
-/* 模式2定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位50。
+/* 模式2定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位40。
  * 实测换算：Move_ZY(-200)使x减小62，Move_QH(200)使y减小66。
  * 每轴按100%误差换算修正脉冲，不分档、不限制修正脉冲；两轴均在[-10,10]内后结束本轮定位。
  * 不使用到位检测，每轴按Move返回的理论时间加10ms延时，两轴处理后清除旧帧，等待新帧判断。
@@ -303,19 +303,19 @@ uint8_t Locate(void)
 
     if (Material_Data[0] > 10 || Material_Data[0] < -10)
     {
-        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 50);
+        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 40);
         Delay_ms(timeMs + 10);
     }
     if (Material_Data[1] > 10 || Material_Data[1] < -10)
     {
-        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 50);
+        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 40);
         Delay_ms(timeMs + 10);
     }
     VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
     return 0;
 }
 
-/* 模式3/5圆环定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位50。
+/* 模式3/5圆环定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位40。
  * 实测Move_ZY(400)使x减小38，Move_QH(400)使y增大38。
  * 每轴按100%误差换算修正脉冲，不分档、不限制修正脉冲；连续两帧两轴均在±3内后结束。
  * 不使用到位检测，每轴按Move返回的理论时间加10ms延时，两轴处理后清除旧帧，等待新帧判断。
@@ -358,12 +358,12 @@ uint8_t orient(void)
 
     if (Ring_Data[0] > 3 || Ring_Data[0] < -3)
     {
-        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 50);
+        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 40);
         Delay_ms(timeMs + 10);
     }
     if (Ring_Data[1] > 3 || Ring_Data[1] < -3)
     {
-        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 50);
+        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 40);
         Delay_ms(timeMs + 10);
     }
     VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。

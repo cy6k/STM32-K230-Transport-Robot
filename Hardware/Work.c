@@ -14,8 +14,8 @@
 #include "VisionSerial.h"
 #include "Light.h"
 
-#define Grap_Delay 500 			//前两次抓放完成后，第三次抓取前的等待时间(ms)
 
+#define Grap_Delay 300 			//前两次抓放完成后，第三次抓取前的等待时间(ms)
 
 
 //左出发，无障碍
@@ -207,7 +207,9 @@ void test_run1(void)
 	Delay_ms(1800);
 	Adjust(-90);
 	Move_QH(11500);
-	Delay_ms(1900);
+	Delay_ms(100);
+	Arm_Turn(2100);
+	Delay_ms(1800);
 	Adjust(0);
 	Move_slant1(-2000);
 	Delay_ms(1100);
@@ -404,7 +406,9 @@ void test_run2(void)
 	Delay_ms(1800);
 	Adjust(90);
 	Move_QH(11500);
-	Delay_ms(1900);
+	Delay_ms(100);
+	Arm_Turn(2100);
+	Delay_ms(1800);
 	Adjust(0);
 	Move_slant2(2000);
 	Delay_ms(1100);
@@ -779,7 +783,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(19600);
 				Delay_ms(100);
-				Arm_Turn(-1630);
+				Arm_Turn(-1715);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -801,9 +805,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(14600);
+				Arm_QH(14200);
 				Delay_ms(100);
-				Arm_Turn(-15);
+				Arm_Turn(-80);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -825,9 +829,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(18100);
+				Arm_QH(17600);
 				Delay_ms(100);
-				Arm_Turn(1650);
+				Arm_Turn(1630);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -851,7 +855,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(19600);
 				Delay_ms(100);
-				Arm_Turn(-1630);
+				Arm_Turn(-1715);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -873,9 +877,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(14600);
+				Arm_QH(14200);
 				Delay_ms(100);
-				Arm_Turn(-15);
+				Arm_Turn(-80);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -897,9 +901,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(18100);
+				Arm_QH(17600);
 				Delay_ms(100);
-				Arm_Turn(1650);
+				Arm_Turn(1630);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -923,7 +927,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(19600);
 				Delay_ms(100);
-				Arm_Turn(-1630);
+				Arm_Turn(-1715);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -945,9 +949,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(14600);
+				Arm_QH(14200);
 				Delay_ms(100);
-				Arm_Turn(-15);
+				Arm_Turn(-80);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -969,9 +973,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(18100);
+				Arm_QH(17600);
 				Delay_ms(100);
-				Arm_Turn(1650);
+				Arm_Turn(1630);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -1005,8 +1009,8 @@ void catch_11(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘1号
 	Arm_QH(4000);
@@ -1021,8 +1025,8 @@ void catch_11(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1042,8 +1046,8 @@ void catch_12(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘2号
 	Arm_QH(2000);
@@ -1058,8 +1062,8 @@ void catch_12(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1079,8 +1083,8 @@ void catch_13(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘3号
 	Arm_QH(4000);
@@ -1095,8 +1099,8 @@ void catch_13(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1116,8 +1120,8 @@ void catch_21(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘1号
 	Arm_QH(4000);
@@ -1132,8 +1136,8 @@ void catch_21(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1153,8 +1157,8 @@ void catch_22(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘2号
 	Arm_QH(2000);
@@ -1169,8 +1173,8 @@ void catch_22(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1190,8 +1194,8 @@ void catch_23(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘3号
 	Arm_QH(4000);
@@ -1206,8 +1210,8 @@ void catch_23(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1227,8 +1231,8 @@ void catch_31(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘1号
 	Arm_QH(4000);
@@ -1243,8 +1247,8 @@ void catch_31(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1264,8 +1268,8 @@ void catch_32(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘2号
 	Arm_QH(2000);
@@ -1280,8 +1284,8 @@ void catch_32(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1301,8 +1305,8 @@ void catch_33(void)
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-2500);
-	Delay_ms(300);
+	Arm_SX(-4000);
+	Delay_ms(250);
 	
 	//爪子到料盘3号
 	Arm_QH(4000);
@@ -1317,8 +1321,8 @@ void catch_33(void)
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-2500);
-	Delay_ms(250);
+	Arm_SX(-4000);
+	Delay_ms(200);
 }
 
 
@@ -1342,7 +1346,7 @@ void put1(void)
 	Delay_ms(300);
 	
 	//爪子到圆环1号
-	Arm_Turn(-1630);
+	Arm_Turn(-1715);
 	Delay_ms(100);
 	Arm_QH(19600);
 	Delay_ms(200);
@@ -1379,9 +1383,9 @@ void put2(void)
 	Delay_ms(300);
 	
 	//爪子到圆环2号
-	Arm_Turn(-15);
+	Arm_Turn(-80);
 	Delay_ms(100);
-	Arm_QH(14600);
+	Arm_QH(14200);
 	Delay_ms(200);
 	Arm_SX(-19700);
 	Delay_ms(500);
@@ -1416,9 +1420,9 @@ void put3(void)
 	Delay_ms(300);
 	
 	//爪子到圆环3号
-	Arm_Turn(1650);
+	Arm_Turn(1630);
 	Delay_ms(100);
-	Arm_QH(18100);
+	Arm_QH(17600);
 	Delay_ms(200);
 	Arm_SX(-19700);
 	Delay_ms(500);
@@ -1437,7 +1441,7 @@ void put3(void)
 void grap1(void)
 {
 	//爪子到圆环1号
-	Arm_Turn(-1630);
+	Arm_Turn(-1715);
 	Delay_ms(100);
 	Arm_QH(19600);
 	Delay_ms(200);
@@ -1474,9 +1478,9 @@ void grap1(void)
 void grap2(void)
 {
 	//爪子到圆环2号
-	Arm_Turn(-15);
+	Arm_Turn(-80);
 	Delay_ms(100);
-	Arm_QH(14600);
+	Arm_QH(14200);
 	Delay_ms(200);
 	Arm_SX(-19500);
 	Delay_ms(500);
@@ -1511,9 +1515,9 @@ void grap2(void)
 void grap3(void)
 {
 	//爪子到圆环3号
-	Arm_Turn(1650);
+	Arm_Turn(1630);
 	Delay_ms(100);
-	Arm_QH(18100);
+	Arm_QH(17600);
 	Delay_ms(200);
 	Arm_SX(-19500);
 	Delay_ms(500);
