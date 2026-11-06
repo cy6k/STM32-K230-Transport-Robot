@@ -15,7 +15,7 @@
 #include "Light.h"
 
 
-#define Grap_Delay 300 			//前两次抓放完成后，第三次抓取前的等待时间(ms)
+#define Grap_Delay 500 			//前两次抓放完成后，第三次抓取前的等待时间(ms)
 
 
 //左出发，无障碍
@@ -24,6 +24,8 @@ void test_run1(void)
 	uint32_t start;
 
 	//出
+	Move_ZY(450);
+	Delay_ms(400);
 	Move_slant1(2000);
 	Delay_ms(1100);
 	Adjust(0);
@@ -234,9 +236,9 @@ void test_run2(void)
 	//到原料区
 	//在底盘移动过程中，同时调整机械臂状态
 	Move_QH(11500);
-	Delay_ms(100);
-	Arm_Turn(10000);
 	Delay_ms(500);
+	Arm_Turn(1500);
+	Delay_ms(100);
 	Arm_SX(-2500);
 	Delay_ms(500);
 	Arm_QH(25000);
@@ -245,7 +247,7 @@ void test_run2(void)
 	
 	
 	//转动到扫描二维码角度
-	Adjust(-90);
+	Adjust(90);
 	
 	
 	//扫描二维码,记录数据
@@ -266,13 +268,13 @@ void test_run2(void)
 	
 	//为抓料准备
 	//在底盘移动过程中，同时调整机械臂状态
-	Move_QH(-800);
+	Move_QH(800);
 	Delay_ms(100);
 	Arm_QH(13000);
 	Delay_ms(400);
 	Arm_Turn(0);
 	Delay_ms(500);
-	
+	Adjust(-90);
 	
 	
 	//从转盘上抓物料
@@ -419,7 +421,7 @@ void test_run2(void)
 
 
 
-//第一批取料：定位后首次z变化确定位置，连续抓三个，中途不回识别姿态
+//第一批取料：单次修正后只等首次z变化确定位置，连续抓三个，中途不回识别姿态
 // shortcut: 第三抓按实测预判转盘再换位一次，转速或停留时间改变时需重新确认。
 uint8_t catch_first(void)
 {
@@ -509,7 +511,7 @@ uint8_t catch_first(void)
 
 
 
-//第二批取料：定位后首次z变化确定位置，连续抓三个，中途不回识别姿态
+//第二批取料：单次修正后只等首次z变化确定位置，连续抓三个，中途不回识别姿态
 // shortcut: 第三抓按实测预判转盘再换位一次，转速或停留时间改变时需重新确认。
 uint8_t catch_second(void)
 {
@@ -781,9 +783,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(19600);
+				Arm_QH(19550);
 				Delay_ms(100);
-				Arm_Turn(-1705);
+				Arm_Turn(-1690);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -853,9 +855,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(19600);
+				Arm_QH(19550);
 				Delay_ms(100);
-				Arm_Turn(-1705);
+				Arm_Turn(-1690);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -925,9 +927,9 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
-				Arm_QH(19600);
+				Arm_QH(19550);
 				Delay_ms(100);
-				Arm_Turn(-1705);
+				Arm_Turn(-1690);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -1346,9 +1348,9 @@ void put1(void)
 	Delay_ms(300);
 	
 	//爪子到圆环1号
-	Arm_Turn(-1705);
+	Arm_Turn(-1690);
 	Delay_ms(100);
-	Arm_QH(19600);
+	Arm_QH(19550);
 	Delay_ms(200);
 	Arm_SX(-19700);
 	Delay_ms(500);
@@ -1441,9 +1443,9 @@ void put3(void)
 void grap1(void)
 {
 	//爪子到圆环1号
-	Arm_Turn(-1705);
+	Arm_Turn(-1690);
 	Delay_ms(100);
-	Arm_QH(19600);
+	Arm_QH(19550);
 	Delay_ms(200);
 	Arm_SX(-19500);
 	Delay_ms(500);

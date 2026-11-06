@@ -14,8 +14,7 @@
 #include <limits.h>
 #include <math.h>
 
-#define Locate_range 10
-#define orient_range 2
+#define orient_range 2					//放置物料到圆环的像素误差允许范围
 
 static uint8_t visionMode = 0;
 static uint8_t qrConfirmCount = 0;
@@ -265,10 +264,10 @@ uint8_t Vision_Read_Ring(void)
     return updated;
 }
 
-/* 模式2定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位40。
+/* 模式2定位：只用首个有效帧，先左右、再前后调用Move修正一次，速度3000，加速档位40。
  * 实测换算：Move_ZY(-200)使x减小62，Move_QH(200)使y减小66。
- * 每轴按100%误差换算修正脉冲，不分档、不限制修正脉冲；两轴均在±Locate_range内后结束本轮定位。
- * 不使用到位检测，每轴按Move返回的理论时间加20ms延时，两轴处理后清除旧帧，等待新帧判断。
+ * 每轴非零偏差均按100%误差换算修正脉冲；完成本轮修正即结束，不复检x、y。
+ * 不使用到位检测，每轴按Move返回的理论时间加20ms延时；保留修正期间的接收帧，完成后只等z变化。
  * 定位结束不切换视觉模式，后续仍由 Vision_Read_material() 接收、打印。 */
 uint8_t Locate(void)
 {
@@ -280,22 +279,6 @@ uint8_t Locate(void)
     if (visionMode != 2 || !locateActive || !materialUpdated) return 0;
     materialUpdated = 0; /* 同一帧只用于一次纠偏，没收到新帧就不继续运动。 */
 
-    if (Material_Data[0] >= -Locate_range && Material_Data[0] <= Locate_range &&
-        Material_Data[1] >= -Locate_range && Material_Data[1] <= Locate_range)
-    {
-        locateActive = 0;
-        /* 已进入允许区域，停止底盘四轮，机械臂电机不受影响。 */
-        for (addr = 1; addr <= 4; addr++)
-        {
-            Emm_V5_Stop_Now(addr, false);
-            Delay_ms(1);
-        }
-        sprintf(printText, "Locate OK, time: %lu ms\r\n",
-                (unsigned long)(GetTick() - calibrateStartTick));
-        Serial_PrintStr(printText);
-        return 1;
-    }
-
     zy = -(float)Material_Data[0] * (200.0f / 62.0f);
     qh = (float)Material_Data[1] * (200.0f / 66.0f);
     if (fabs((double)zy) > (double)LONG_MAX || fabs((double)qh) > (double)LONG_MAX)
@@ -304,21 +287,30 @@ uint8_t Locate(void)
         return 0;
     }
 
-    if (Material_Data[0] > Locate_range || Material_Data[0] < -Locate_range)
+    if (Material_Data[0] != 0)
     {
         timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 40);
         Delay_ms(timeMs + 20);
     }
-    if (Material_Data[1] > Locate_range || Material_Data[1] < -Locate_range)
+    if (Material_Data[1] != 0)
     {
         timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 40);
         Delay_ms(timeMs + 20);
     }
-    VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
-    return 0;
+    // 保留修正期间收到的视觉帧，供抓取函数比较修正前后的z变化。
+    locateActive = 0; // 本轮只修正一次，不再复检x、y。
+    for (addr = 1; addr <= 4; addr++)
+    {
+        Emm_V5_Stop_Now(addr, false);
+        Delay_ms(1);
+    }
+    sprintf(printText, "Locate OK, time: %lu ms\r\n",
+            (unsigned long)(GetTick() - calibrateStartTick));
+    Serial_PrintStr(printText);
+    return 1;
 }
 
-/* 模式3/5圆环定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位40。
+/* 模式3/5圆环定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位30。
  * 实测Move_ZY(400)使x减小38，Move_QH(400)使y增大38。
  * 每轴按100%误差换算修正脉冲，不分档、不限制修正脉冲；连续两帧两轴均在±orient_range内后结束。
  * 不使用到位检测，每轴按Move返回的理论时间加20ms延时，两轴处理后清除旧帧，等待新帧判断。
@@ -361,12 +353,12 @@ uint8_t orient(void)
 
     if (Ring_Data[0] > orient_range || Ring_Data[0] < -orient_range)
     {
-        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 40);
+        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 30);
         Delay_ms(timeMs + 20);
     }
     if (Ring_Data[1] > orient_range || Ring_Data[1] < -orient_range)
     {
-        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 40);
+        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 30);
         Delay_ms(timeMs + 20);
     }
     VisionSerial_ResetReceiver(); // 不用运动期间缓存的旧帧继续纠偏。
