@@ -783,7 +783,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(19600);
 				Delay_ms(100);
-				Arm_Turn(-1715);
+				Arm_Turn(-1705);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -855,7 +855,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(19600);
 				Delay_ms(100);
-				Arm_Turn(-1715);
+				Arm_Turn(-1705);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -927,7 +927,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_QH(19600);
 				Delay_ms(100);
-				Arm_Turn(-1715);
+				Arm_Turn(-1705);
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
@@ -1346,7 +1346,7 @@ void put1(void)
 	Delay_ms(300);
 	
 	//爪子到圆环1号
-	Arm_Turn(-1715);
+	Arm_Turn(-1705);
 	Delay_ms(100);
 	Arm_QH(19600);
 	Delay_ms(200);
@@ -1441,7 +1441,7 @@ void put3(void)
 void grap1(void)
 {
 	//爪子到圆环1号
-	Arm_Turn(-1715);
+	Arm_Turn(-1705);
 	Delay_ms(100);
 	Arm_QH(19600);
 	Delay_ms(200);
