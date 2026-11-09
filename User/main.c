@@ -25,7 +25,7 @@ int main(void)
 	usart_init();						//USART2(PA2=TX / PA3=RX) 115200，接张大头电机
 	Serial_Init();						//USART1(PA9=TX / PA10=RX)，DAP调试口
 	HWT101_Init();						//陀螺仪初始化
-	Servo_Init();						//舵机初始化
+	Servo_Init();						//舵机初始化，初始化上电20度
 	Light_Init();						// 补光灯初始化，PB0 硬件 PWM，默认关闭
 	VisionSerial_Init();				// UART4：PA0/PA1，115200，连接 K230 视觉模块
 	TJC_USART6_Init();					// USART6: PC6/PC7, 9600, 串口屏
@@ -41,7 +41,7 @@ int main(void)
 	Delay_ms(3000);
 	HWT_Read_Angle();					//其他初始化完成后调用，等待角度稳定并记录为零点
 	Serial_PrintStr("Waiting for work \r\n");
-	Servo_Write(45);					//所有任务初始化完成后，打开爪子，标志可以开始工作
+	Servo_Write(65);					//所有任务初始化完成后，打开爪子，标志可以开始工作
 	
 	Delay_ms(3000);						//爪子张开后3秒，再回到范围内
 	Arm_Turn(2100);

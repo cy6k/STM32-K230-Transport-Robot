@@ -311,7 +311,7 @@ uint8_t Locate(void)
 }
 
 /* 模式3/5圆环定位：每个新帧先左右、再前后调用Move纠偏，速度3000，加速档位30。
- * 实测Move_ZY(400)使x减小38，Move_QH(400)使y增大38。
+ * 实测Move_ZY(400)使x减小37，Move_QH(400)使y增大37。
  * 每轴按100%误差换算修正脉冲，不分档、不限制修正脉冲；连续两帧两轴均在±orient_range内后结束。
  * 不使用到位检测，每轴按Move返回的理论时间加20ms延时，两轴处理后清除旧帧，等待新帧判断。
  * 定位结束后继续接收和打印，重新切换模式3或5可再开始一轮定位。
@@ -343,8 +343,8 @@ uint8_t orient(void)
         return 1;
     }
 
-    zy = (float)Ring_Data[0] * (400.0f / 38.0f);
-    qh = -(float)Ring_Data[1] * (400.0f / 38.0f);
+    zy = (float)Ring_Data[0] * (400.0f / 37.0f);
+    qh = -(float)Ring_Data[1] * (400.0f / 37.0f);
     if (fabs((double)zy) > (double)LONG_MAX || fabs((double)qh) > (double)LONG_MAX)
     {
         VisionSerial_ResetReceiver();

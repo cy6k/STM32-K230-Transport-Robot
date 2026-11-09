@@ -208,13 +208,13 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(1800);
 	Adjust(-90);
-	Move_QH(11500);
+	Move_QH(11800);
 	Delay_ms(100);
 	Arm_Turn(2100);
-	Delay_ms(1800);
+	Delay_ms(1900);
 	Adjust(0);
-	Move_slant1(-2000);
-	Delay_ms(1100);
+	Move_slant1(-2200);
+	Delay_ms(1500);
 	HWT101_ReadAndPrint();
 	
 }
@@ -407,13 +407,13 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(1800);
 	Adjust(90);
-	Move_QH(11500);
+	Move_QH(10800);
 	Delay_ms(100);
 	Arm_Turn(2100);
-	Delay_ms(1800);
+	Delay_ms(1700);
 	Adjust(0);
-	Move_slant2(2000);
-	Delay_ms(1100);
+	Move_slant2(2200);
+	Delay_ms(1500);
 	HWT101_ReadAndPrint();
 	
 }
@@ -779,7 +779,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -789,7 +789,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -803,7 +803,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -813,7 +813,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -827,7 +827,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -837,7 +837,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -851,7 +851,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -861,7 +861,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -875,7 +875,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -885,7 +885,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -899,7 +899,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -909,7 +909,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -923,7 +923,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -933,7 +933,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -947,7 +947,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -957,7 +957,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -971,7 +971,7 @@ uint8_t put_third(void)
 				Delay_ms(200);
 				Arm_SX(-10300);
 				Delay_ms(400);
-				Servo_Write(0);
+				Servo_Write(17);
 				Delay_ms(250);
 				Arm_SX(-7000);
 				Delay_ms(200);
@@ -981,7 +981,7 @@ uint8_t put_third(void)
 				Delay_ms(250);
 				Arm_SX(-13600);
 				Delay_ms(400);
-				Servo_Write(35);
+				Servo_Write(50);
 				Delay_ms(100);
 				Arm_SX(-4000);
 				Delay_ms(300);
@@ -1007,7 +1007,7 @@ void catch_11(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1023,7 +1023,7 @@ void catch_11(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1044,7 +1044,7 @@ void catch_12(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1060,7 +1060,7 @@ void catch_12(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1081,7 +1081,7 @@ void catch_13(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1097,7 +1097,7 @@ void catch_13(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1118,7 +1118,7 @@ void catch_21(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1134,7 +1134,7 @@ void catch_21(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1155,7 +1155,7 @@ void catch_22(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1171,7 +1171,7 @@ void catch_22(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1192,7 +1192,7 @@ void catch_23(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1208,7 +1208,7 @@ void catch_23(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1229,7 +1229,7 @@ void catch_31(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1245,7 +1245,7 @@ void catch_31(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1266,7 +1266,7 @@ void catch_32(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1282,7 +1282,7 @@ void catch_32(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1303,7 +1303,7 @@ void catch_33(void)
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(300);
 	
 	//提起到一定高度
@@ -1319,7 +1319,7 @@ void catch_33(void)
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
@@ -1340,7 +1340,7 @@ void put1(void)
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(250);
 	
 	//提起来
@@ -1356,7 +1356,7 @@ void put1(void)
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(100);
 	
 	//爪子提起来
@@ -1377,7 +1377,7 @@ void put2(void)
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(250);
 	
 	//提起来
@@ -1393,7 +1393,7 @@ void put2(void)
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(100);
 	
 	//爪子提起来
@@ -1414,7 +1414,7 @@ void put3(void)
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(250);
 	
 	//提起来
@@ -1430,7 +1430,7 @@ void put3(void)
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(100);
 	
 	//爪子提起来
@@ -1451,7 +1451,7 @@ void grap1(void)
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(250);
 	
 	//提起来
@@ -1467,7 +1467,7 @@ void grap1(void)
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(100);
 	
 	//爪子提起来
@@ -1488,7 +1488,7 @@ void grap2(void)
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(250);
 	
 	//提起来
@@ -1504,7 +1504,7 @@ void grap2(void)
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(100);
 	
 	//爪子提起来
@@ -1525,7 +1525,7 @@ void grap3(void)
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(0);
+	Servo_Write(17);
 	Delay_ms(250);
 	
 	//提起来
@@ -1541,7 +1541,7 @@ void grap3(void)
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(35);
+	Servo_Write(50);
 	Delay_ms(100);
 	
 	//爪子提起来

@@ -9,7 +9,7 @@
 
 
 #define vel_2 2500
-#define acc_2 250
+#define acc_2 251
 
 
 #define vel_3 2500

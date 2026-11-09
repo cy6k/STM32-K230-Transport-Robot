@@ -64,7 +64,7 @@ void Servo_Init(void)
     // PWM 通道初始化：TIM2_CH1
     TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM1;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse       = SERVO_MIN_PULSE; // Default: 0 degrees
+    TIM_OCInitStructure.TIM_Pulse       = SERVO_MIN_PULSE + 20 * (SERVO_MAX_PULSE - SERVO_MIN_PULSE) / 180; // Default: 20 degrees
     TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_High;
 
     TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
