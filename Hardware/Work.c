@@ -15,7 +15,57 @@
 #include "Light.h"
 
 
-#define Grap_Delay 500 			//前两次抓放完成后，第三次抓取前的等待时间(ms)
+#define Grap_Delay 	500		// 第三次抓取前等待(ms)
+
+#define Claw_Open	50		//爪子张开角度
+#define Claw_Close	16		//爪子闭合角度
+
+
+// 抬升高度
+#define SX_Lift_High	-4000		// 较高抬升位置
+#define SX_Lift_Low		-7000		// 较低抬升位置
+
+
+//车身料盘参数
+#define V_SX		-10300		// 车身取放高度
+
+#define V1_Turn		-1380		// 车身1号转角
+#define V1_QH		4000		// 车身1号前后位置
+
+#define V2_Turn		270			// 车身2号转角
+#define V2_QH		2000		// 车身2号前后位置
+
+#define V3_Turn		1830		// 车身3号转角
+#define V3_QH		4000		// 车身3号前后位置
+
+
+//转盘取料参数
+#define C_SX		-11300		// 转盘取料高度
+
+#define C1_Turn		-650		// 转盘1号转角
+#define C1_QH		29000		// 转盘1号前后位置
+
+#define C2_Turn		-30			// 转盘2号转角
+#define C2_QH		12700		// 转盘2号前后位置
+
+#define C3_Turn		670			// 转盘3号转角
+#define C3_QH		28500		// 转盘3号前后位置
+
+
+//圆环抓放参数
+#define R_SX		-19700		// 圆环抓放高度
+#define R_SX_2		-13600		// 圆环叠放高度
+
+
+#define R1_Turn		-1710		// 圆环1号转角
+#define R1_QH		19600		// 圆环1号前后位置
+
+#define R2_Turn		-85			// 圆环2号转角
+#define R2_QH		14200		// 圆环2号前后位置
+
+#define R3_Turn		1615		// 圆环3号转角
+#define R3_QH		17500		// 圆环3号前后位置
+
 
 
 //左出发，无障碍
@@ -773,217 +823,217 @@ uint8_t put_third(void)
 		{
 			//车载料盘1号取料，叠放到圆环1号的同色物料上。
 			case 11:
-				Arm_QH(4000);
+				Arm_QH(V1_QH);
 				Delay_ms(100);
-				Arm_Turn(-1380);
+				Arm_Turn(V1_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(19550);
+				Arm_QH(R1_QH);
 				Delay_ms(100);
-				Arm_Turn(-1690);
+				Arm_Turn(R1_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
 			//车载料盘1号取料，叠放到圆环2号的同色物料上。
 			case 12:
-				Arm_QH(4000);
+				Arm_QH(V1_QH);
 				Delay_ms(100);
-				Arm_Turn(-1380);
+				Arm_Turn(V1_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(14200);
+				Arm_QH(R2_QH);
 				Delay_ms(100);
-				Arm_Turn(-80);
+				Arm_Turn(R2_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
 			//车载料盘1号取料，叠放到圆环3号的同色物料上。
 			case 13:
-				Arm_QH(4000);
+				Arm_QH(V1_QH);
 				Delay_ms(100);
-				Arm_Turn(-1380);
+				Arm_Turn(V1_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(17600);
+				Arm_QH(R3_QH);
 				Delay_ms(100);
-				Arm_Turn(1630);
+				Arm_Turn(R3_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
 			//车载料盘2号取料，叠放到圆环1号的同色物料上。
 			case 21:
-				Arm_QH(2000);
+				Arm_QH(V2_QH);
 				Delay_ms(100);
-				Arm_Turn(270);
+				Arm_Turn(V2_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(19550);
+				Arm_QH(R1_QH);
 				Delay_ms(100);
-				Arm_Turn(-1690);
+				Arm_Turn(R1_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
 			//车载料盘2号取料，叠放到圆环2号的同色物料上。
 			case 22:
-				Arm_QH(2000);
+				Arm_QH(V2_QH);
 				Delay_ms(100);
-				Arm_Turn(270);
+				Arm_Turn(V2_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(14200);
+				Arm_QH(R2_QH);
 				Delay_ms(100);
-				Arm_Turn(-80);
+				Arm_Turn(R2_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
 			//车载料盘2号取料，叠放到圆环3号的同色物料上。
 			case 23:
-				Arm_QH(2000);
+				Arm_QH(V2_QH);
 				Delay_ms(100);
-				Arm_Turn(270);
+				Arm_Turn(V2_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(17600);
+				Arm_QH(R3_QH);
 				Delay_ms(100);
-				Arm_Turn(1630);
+				Arm_Turn(R3_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
 			//车载料盘3号取料，叠放到圆环1号的同色物料上。
 			case 31:
-				Arm_QH(4000);
+				Arm_QH(V3_QH);
 				Delay_ms(100);
-				Arm_Turn(1830);
+				Arm_Turn(V3_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(19550);
+				Arm_QH(R1_QH);
 				Delay_ms(100);
-				Arm_Turn(-1690);
+				Arm_Turn(R1_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
 			//车载料盘3号取料，叠放到圆环2号的同色物料上。
 			case 32:
-				Arm_QH(4000);
+				Arm_QH(V3_QH);
 				Delay_ms(100);
-				Arm_Turn(1830);
+				Arm_Turn(V3_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(14200);
+				Arm_QH(R2_QH);
 				Delay_ms(100);
-				Arm_Turn(-80);
+				Arm_Turn(R2_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
 			//车载料盘3号取料，叠放到圆环3号的同色物料上。
 			case 33:
-				Arm_QH(4000);
+				Arm_QH(V3_QH);
 				Delay_ms(100);
-				Arm_Turn(1830);
+				Arm_Turn(V3_Turn);
 				Delay_ms(200);
-				Arm_SX(-10300);
+				Arm_SX(V_SX);
 				Delay_ms(400);
-				Servo_Write(17);
+				Servo_Write(Claw_Close);
 				Delay_ms(250);
-				Arm_SX(-7000);
+				Arm_SX(SX_Lift_Low);
 				Delay_ms(200);
-				Arm_QH(17600);
+				Arm_QH(R3_QH);
 				Delay_ms(100);
-				Arm_Turn(1630);
+				Arm_Turn(R3_Turn);
 				Delay_ms(250);
-				Arm_SX(-13600);
+				Arm_SX(R_SX_2);
 				Delay_ms(400);
-				Servo_Write(50);
+				Servo_Write(Claw_Open);
 				Delay_ms(100);
-				Arm_SX(-4000);
+				Arm_SX(SX_Lift_High);
 				Delay_ms(300);
 				break;
 
@@ -999,35 +1049,35 @@ uint8_t put_third(void)
 void catch_11(void)
 {
 	//爪子到转盘1号
-	Arm_Turn(-650);
+	Arm_Turn(C1_Turn);
 	Delay_ms(200);
-	Arm_QH(29000);
+	Arm_QH(C1_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘1号
-	Arm_QH(4000);
+	Arm_QH(V1_QH);
 	Delay_ms(200);
-	Arm_Turn(-1380);
+	Arm_Turn(V1_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1036,35 +1086,35 @@ void catch_11(void)
 void catch_12(void)
 {
 	//爪子到转盘1号
-	Arm_Turn(-650);
+	Arm_Turn(C1_Turn);
 	Delay_ms(200);
-	Arm_QH(29000);
+	Arm_QH(C1_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘2号
-	Arm_QH(2000);
+	Arm_QH(V2_QH);
 	Delay_ms(200);
-	Arm_Turn(270);
+	Arm_Turn(V2_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1073,35 +1123,35 @@ void catch_12(void)
 void catch_13(void)
 {
 	//爪子到转盘1号
-	Arm_Turn(-650);
+	Arm_Turn(C1_Turn);
 	Delay_ms(200);
-	Arm_QH(29000);
+	Arm_QH(C1_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘3号
-	Arm_QH(4000);
+	Arm_QH(V3_QH);
 	Delay_ms(200);
-	Arm_Turn(1830);
+	Arm_Turn(V3_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1110,35 +1160,35 @@ void catch_13(void)
 void catch_21(void)
 {
 	//爪子到转盘2号
-	Arm_Turn(-30);
+	Arm_Turn(C2_Turn);
 	Delay_ms(200);
-	Arm_QH(12700);
+	Arm_QH(C2_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘1号
-	Arm_QH(4000);
+	Arm_QH(V1_QH);
 	Delay_ms(200);
-	Arm_Turn(-1380);
+	Arm_Turn(V1_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1147,35 +1197,35 @@ void catch_21(void)
 void catch_22(void)
 {
 	//爪子到转盘2号
-	Arm_Turn(-30);
+	Arm_Turn(C2_Turn);
 	Delay_ms(200);
-	Arm_QH(12700);
+	Arm_QH(C2_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘2号
-	Arm_QH(2000);
+	Arm_QH(V2_QH);
 	Delay_ms(200);
-	Arm_Turn(270);
+	Arm_Turn(V2_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1184,35 +1234,35 @@ void catch_22(void)
 void catch_23(void)
 {
 	//爪子到转盘2号
-	Arm_Turn(-30);
+	Arm_Turn(C2_Turn);
 	Delay_ms(200);
-	Arm_QH(12700);
+	Arm_QH(C2_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘3号
-	Arm_QH(4000);
+	Arm_QH(V3_QH);
 	Delay_ms(200);
-	Arm_Turn(1830);
+	Arm_Turn(V3_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1221,35 +1271,35 @@ void catch_23(void)
 void catch_31(void)
 {
 	//爪子到转盘3号
-	Arm_Turn(670);
+	Arm_Turn(C3_Turn);
 	Delay_ms(200);
-	Arm_QH(28500);
+	Arm_QH(C3_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘1号
-	Arm_QH(4000);
+	Arm_QH(V1_QH);
 	Delay_ms(200);
-	Arm_Turn(-1380);
+	Arm_Turn(V1_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1258,35 +1308,35 @@ void catch_31(void)
 void catch_32(void)
 {
 	//爪子到转盘3号
-	Arm_Turn(670);
+	Arm_Turn(C3_Turn);
 	Delay_ms(200);
-	Arm_QH(28500);
+	Arm_QH(C3_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘2号
-	Arm_QH(2000);
+	Arm_QH(V2_QH);
 	Delay_ms(200);
-	Arm_Turn(270);
+	Arm_Turn(V2_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1295,35 +1345,35 @@ void catch_32(void)
 void catch_33(void)
 {
 	//爪子到转盘3号
-	Arm_Turn(670);
+	Arm_Turn(C3_Turn);
 	Delay_ms(200);
-	Arm_QH(28500);
+	Arm_QH(C3_QH);
 	Delay_ms(200);
-	Arm_SX(-11300);
+	Arm_SX(C_SX);
 	Delay_ms(450);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(300);
 	
 	//提起到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(250);
 	
 	//爪子到料盘3号
-	Arm_QH(4000);
+	Arm_QH(V3_QH);
 	Delay_ms(200);
-	Arm_Turn(1830);
+	Arm_Turn(V3_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(350);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(150);
 		
 	//爪子提高到一定高度
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(200);
 }
 
@@ -1332,35 +1382,35 @@ void catch_33(void)
 void put1(void)
 {
 	//爪子到料盘1号
-	Arm_QH(4000);
+	Arm_QH(V1_QH);
 	Delay_ms(100);
-	Arm_Turn(-1380);
+	Arm_Turn(V1_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(250);
 	
 	//提起来
-	Arm_SX(-7000);
+	Arm_SX(SX_Lift_Low);
 	Delay_ms(300);
 	
 	//爪子到圆环1号
-	Arm_Turn(-1690);
+	Arm_Turn(R1_Turn);
 	Delay_ms(100);
-	Arm_QH(19550);
+	Arm_QH(R1_QH);
 	Delay_ms(200);
-	Arm_SX(-19700);
+	Arm_SX(R_SX);
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(100);
 	
 	//爪子提起来
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(500);
 }
 
@@ -1369,35 +1419,35 @@ void put1(void)
 void put2(void)
 {
 	//爪子到料盘2号
-	Arm_QH(2000);
+	Arm_QH(V2_QH);
 	Delay_ms(100);
-	Arm_Turn(270);
+	Arm_Turn(V2_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(250);
 	
 	//提起来
-	Arm_SX(-7000);
+	Arm_SX(SX_Lift_Low);
 	Delay_ms(300);
 	
 	//爪子到圆环2号
-	Arm_Turn(-80);
+	Arm_Turn(R2_Turn);
 	Delay_ms(100);
-	Arm_QH(14200);
+	Arm_QH(R2_QH);
 	Delay_ms(200);
-	Arm_SX(-19700);
+	Arm_SX(R_SX);
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(100);
 	
 	//爪子提起来
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(500);
 }
 
@@ -1406,35 +1456,35 @@ void put2(void)
 void put3(void)
 {
 	//爪子到料盘3号
-	Arm_QH(4000);
+	Arm_QH(V3_QH);
 	Delay_ms(100);
-	Arm_Turn(1830);
+	Arm_Turn(V3_Turn);
 	Delay_ms(200);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(250);
 	
 	//提起来
-	Arm_SX(-7000);
+	Arm_SX(SX_Lift_Low);
 	Delay_ms(300);
 	
 	//爪子到圆环3号
-	Arm_Turn(1630);
+	Arm_Turn(R3_Turn);
 	Delay_ms(100);
-	Arm_QH(17600);
+	Arm_QH(R3_QH);
 	Delay_ms(200);
-	Arm_SX(-19700);
+	Arm_SX(R_SX);
 	Delay_ms(500);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(100);
 	
 	//爪子提起来
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(500);
 }
 
@@ -1443,35 +1493,35 @@ void put3(void)
 void grap1(void)
 {
 	//爪子到圆环1号
-	Arm_Turn(-1690);
+	Arm_Turn(R1_Turn);
 	Delay_ms(100);
-	Arm_QH(19550);
+	Arm_QH(R1_QH);
 	Delay_ms(200);
-	Arm_SX(-19500);
+	Arm_SX(R_SX);
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(250);
 	
 	//提起来
-	Arm_SX(-7000);
+	Arm_SX(SX_Lift_Low);
 	Delay_ms(400);
 	
 	//爪子到料盘1号
-	Arm_QH(4000);
+	Arm_QH(V1_QH);
 	Delay_ms(200);
-	Arm_Turn(-1380);
+	Arm_Turn(V1_Turn);
 	Delay_ms(100);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(100);
 	
 	//爪子提起来
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(300);
 }
 
@@ -1480,35 +1530,35 @@ void grap1(void)
 void grap2(void)
 {
 	//爪子到圆环2号
-	Arm_Turn(-80);
+	Arm_Turn(R2_Turn);
 	Delay_ms(100);
-	Arm_QH(14200);
+	Arm_QH(R2_QH);
 	Delay_ms(200);
-	Arm_SX(-19500);
+	Arm_SX(R_SX);
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(250);
 	
 	//提起来
-	Arm_SX(-7000);
+	Arm_SX(SX_Lift_Low);
 	Delay_ms(400);
 	
 	//爪子到料盘2号
-	Arm_QH(2000);
+	Arm_QH(V2_QH);
 	Delay_ms(200);
-	Arm_Turn(270);
+	Arm_Turn(V2_Turn);
 	Delay_ms(100);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(100);
 	
 	//爪子提起来
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(300);
 }
 
@@ -1517,35 +1567,35 @@ void grap2(void)
 void grap3(void)
 {
 	//爪子到圆环3号
-	Arm_Turn(1630);
+	Arm_Turn(R3_Turn);
 	Delay_ms(100);
-	Arm_QH(17600);
+	Arm_QH(R3_QH);
 	Delay_ms(200);
-	Arm_SX(-19500);
+	Arm_SX(R_SX);
 	Delay_ms(500);
 	
 	//抓
-	Servo_Write(17);
+	Servo_Write(Claw_Close);
 	Delay_ms(250);
 	
 	//提起来
-	Arm_SX(-7000);
+	Arm_SX(SX_Lift_Low);
 	Delay_ms(400);
 	
 	//爪子到料盘3号
-	Arm_QH(4000);
+	Arm_QH(V3_QH);
 	Delay_ms(200);
-	Arm_Turn(1830);
+	Arm_Turn(V3_Turn);
 	Delay_ms(100);
-	Arm_SX(-10300);
+	Arm_SX(V_SX);
 	Delay_ms(300);
 	
 	//放
-	Servo_Write(50);
+	Servo_Write(Claw_Open);
 	Delay_ms(100);
 	
 	//爪子提起来
-	Arm_SX(-4000);
+	Arm_SX(SX_Lift_High);
 	Delay_ms(300);
 }
 
