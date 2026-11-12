@@ -12,6 +12,7 @@
 #include "VisionSerial.h"
 #include "Vision_work.h"
 #include "Light.h"
+#include "Key.h"
 
 
 char command;
@@ -29,6 +30,7 @@ int main(void)
 	Light_Init();						// 补光灯初始化，PB0 硬件 PWM，默认关闭
 	VisionSerial_Init();				// UART4：PA0/PA1，115200，连接 K230 视觉模块
 	TJC_USART6_Init();					// USART6: PC6/PC7, 9600, 串口屏
+	Key_Init();                   		//初始化两个按键
 	Delay_ms(500);						//等电机自检完成
 	EC_Enable();						//底盘4个电机都使能
 	Arm_Enable();						//机械臂3个电机使能
@@ -41,9 +43,9 @@ int main(void)
 	Delay_ms(6000);
 	HWT_Read_Angle();					//其他初始化完成后调用，等待角度稳定并记录为零点
 	Serial_PrintStr("Waiting for work \r\n");
-	Servo_Write(60);					//所有任务初始化完成后，打开爪子，标志可以开始工作
+	Servo_Write(55);					//所有任务初始化完成后，打开爪子，标志可以开始工作
 	
-	Delay_ms(3000);						//爪子张开后3秒，再回到范围内
+	Delay_ms(500);						//爪子张开后500ms，再回到范围内
 	Arm_Turn(2100);
 	
 	
@@ -69,6 +71,18 @@ int main(void)
 		{
 //			test_run4();
 		}
+		
+		if (Key1_get())               //按键1按下
+		{
+			Serial_PrintStr("button 1 start\r\n");
+			test_run1();
+		}
+		if (Key2_get())               //按键2按下
+		{
+			Serial_PrintStr("button 2 start\r\n");
+			test_run2();
+		}
+	
 	}
 }
 
@@ -168,6 +182,15 @@ void test(void)
 			
 			case 't':
 			Serial_PrintStr("Test Start \r\n");
+			catch_11();
+			catch_22();
+			catch_33();
+			catch_12();
+			catch_23();
+			catch_31();
+			catch_13();
+			catch_21();
+			catch_32();
 //			TJC_Test();
 			
 			break;
@@ -236,7 +259,7 @@ void test(void)
 				}
 				HWT101_ConfigPoll(); 	// 等待期间继续完成陀螺仪配置
 				Vision_Read_Ring();
-				orient(); 				// 需要只接收打印时，可以注释本行
+				orient1(); 				// 需要只接收打印时，可以注释本行
 			}
 			break;
 
@@ -254,7 +277,7 @@ void test(void)
 				}
 				HWT101_ConfigPoll(); 	// 等待期间继续完成陀螺仪配置
 				Vision_Read_Ring();
-				orient(); 				// 需要只接收打印时，可以注释本行
+				orient2(); 				// 需要只接收打印时，可以注释本行
 			}
 			break;
 

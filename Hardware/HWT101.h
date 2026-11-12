@@ -51,7 +51,9 @@ uint8_t  HWT101_YawSnapshot(float *yaw, uint32_t *tick);
 extern volatile HWT101_Data_t g_hwt101;       /* 中断里写入, 一般请用上面的接口读取 */
 
 /* 以最短转向旋转并校准到相对上电零点的目标角度（-180～180度）。
- * 普通转向接口加固定延时：90度档1200ms、180度档1800ms，细调400ms，允许误差为 ±0.1 度。 */
+ * 按实际脉冲计算理论延时，允许误差为 ±Adjust_range 度。 */
 void Adjust(float target_angle);
+/* 指定本次校准的角度误差范围(度)，供视觉定位使用独立参数。 */
+void Adjust_Range(float target_angle, float angle_range);
 
 #endif

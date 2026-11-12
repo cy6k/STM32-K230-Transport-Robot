@@ -27,7 +27,7 @@
 
 
 //车身料盘参数
-#define V_SX		-10300		// 车身取放高度
+#define V_SX		-10250		// 车身取放高度
 
 #define V1_Turn		-1380		// 车身1号转角
 #define V1_QH		4000		// 车身1号前后位置
@@ -40,16 +40,16 @@
 
 
 //转盘取料参数
-#define C_SX		-11300		// 转盘取料高度
+#define C_SX		-11450		// 转盘取料高度
 
-#define C1_Turn		-650		// 转盘1号转角
-#define C1_QH		29000		// 转盘1号前后位置
+#define C1_Turn		-730		// 转盘1号转角
+#define C1_QH		29300		// 转盘1号前后位置
 
-#define C2_Turn		-30			// 转盘2号转角
-#define C2_QH		12700		// 转盘2号前后位置
+#define C2_Turn		-80			// 转盘2号转角
+#define C2_QH		12900		// 转盘2号前后位置
 
-#define C3_Turn		670			// 转盘3号转角
-#define C3_QH		28500		// 转盘3号前后位置
+#define C3_Turn		600			// 转盘3号转角
+#define C3_QH		28700		// 转盘3号前后位置
 
 
 //圆环抓放参数
@@ -57,14 +57,14 @@
 #define R_SX_2		-13600		// 圆环叠放高度
 
 
-#define R1_Turn		-1710		// 圆环1号转角
-#define R1_QH		19600		// 圆环1号前后位置
+#define R1_Turn		-1675		// 圆环1号转角
+#define R1_QH		19500		// 圆环1号前后位置
 
-#define R2_Turn		-85			// 圆环2号转角
-#define R2_QH		14200		// 圆环2号前后位置
+#define R2_Turn		-65			// 圆环2号转角
+#define R2_QH		14300		// 圆环2号前后位置
 
 #define R3_Turn		1615		// 圆环3号转角
-#define R3_QH		17500		// 圆环3号前后位置
+#define R3_QH		17800		// 圆环3号前后位置
 
 
 
@@ -83,14 +83,16 @@ void test_run1(void)
 	
 	
 	//到原料区
-	//在底盘移动过程中，同时调整机械臂状态
+	//在底盘移动过程中，同时调整机械臂状态，提前切换模式扫码
 	Move_QH(11500);
 	Delay_ms(1900);
 	Adjust(90);
 	Move_QH(23000);
 	Delay_ms(1000);
 	Arm_Turn(1500);
-	Delay_ms(500);
+	Delay_ms(100);
+	Vision_SetMode(1);
+	Delay_ms(400);
 	Arm_SX(-2500);
 	Delay_ms(500);
 	Arm_QH(25000);
@@ -98,23 +100,19 @@ void test_run1(void)
 	HWT101_ReadAndPrint();
 		
 	
-	
-	//扫描二维码,记录数据
-	Vision_SetMode(1);
-	start = GetTick();
-	while (!Vision_Read_QR())
+	//扫描二维码，记录数据，扫完二维码直接切换模式2
+	while(1)
 	{
-		HWT101_ConfigPoll();
-		if ((uint32_t)(GetTick() - start) >= 5000U)
+		if(Vision_Read_QR() == 1)
 		{
-			Vision_SetMode(4);
-			Serial_PrintStr("QR timeout\r\n");
-			return;
+			Vision_SetMode(2);
+			Serial_PrintStr("Read success\r\n");
+			break;
 		}
 	}
-	Vision_SetMode(4);
+		
 	
-	
+		
 	//为抓料准备
 	//在底盘移动过程中，同时调整机械臂状态
 	Move_QH(200);
@@ -142,8 +140,9 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(300);
 	Arm_QH(15000);
-	Delay_ms(1800);
-
+	Delay_ms(800);
+	Vision_SetMode(3);	//提前切换模式
+	Delay_ms(1000);
 	
 	
 	//放物料到粗加工区圆环,放完再取
@@ -166,8 +165,9 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(200);
 	Arm_QH(15000);
-	Delay_ms(1200);
-	
+	Delay_ms(200);
+	Vision_SetMode(3);	//提前切换模式
+	Delay_ms(1000);
 	
 	
 	
@@ -190,7 +190,9 @@ void test_run1(void)
 	Delay_ms(1100);
 	Adjust(180);
 	Move_QH(11500);
-	Delay_ms(1900);
+	Delay_ms(900);
+	Vision_SetMode(2);	//提前切换模式
+	Delay_ms(1000);
 	
 	
 	//准备原料区第二次取料
@@ -213,7 +215,9 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(300);
 	Arm_QH(15000);
-	Delay_ms(1800);
+	Delay_ms(800);
+	Vision_SetMode(3);	//提前切换模式
+	Delay_ms(1000);
 
 	
 	
@@ -236,7 +240,9 @@ void test_run1(void)
 	Arm_Turn(0);
 	Delay_ms(200);
 	Arm_QH(15000);
-	Delay_ms(1200);
+	Delay_ms(200);
+	Vision_SetMode(5);	//提前切换模式
+	Delay_ms(1000);
 	
 	
 	
@@ -284,9 +290,11 @@ void test_run2(void)
 	HWT101_ReadAndPrint();
 	
 	//到原料区
-	//在底盘移动过程中，同时调整机械臂状态
+	//在底盘移动过程中，同时调整机械臂状态,提前切换模式扫码
 	Move_QH(11500);
-	Delay_ms(500);
+	Delay_ms(100);
+	Vision_SetMode(1);
+	Delay_ms(400);
 	Arm_Turn(1500);
 	Delay_ms(100);
 	Arm_SX(-2500);
@@ -300,22 +308,20 @@ void test_run2(void)
 	Adjust(90);
 	
 	
-	//扫描二维码,记录数据
-	Vision_SetMode(1);
-	start = GetTick();
-	while (!Vision_Read_QR())
+	
+	//扫描二维码，记录数据，扫完二维码直接切换模式2
+	while(1)
 	{
-		HWT101_ConfigPoll();
-		if ((uint32_t)(GetTick() - start) >= 5000U)
+		if(Vision_Read_QR() == 1)
 		{
-			Vision_SetMode(4);
-			Serial_PrintStr("QR timeout\r\n");
-			return;
+			Vision_SetMode(2);
+			Serial_PrintStr("Read success\r\n");
+			break;
 		}
 	}
-	Vision_SetMode(4);
 	
 	
+
 	//为抓料准备
 	//在底盘移动过程中，同时调整机械臂状态
 	Move_QH(800);
@@ -342,7 +348,9 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(300);
 	Arm_QH(15000);
-	Delay_ms(1800);
+	Delay_ms(800);
+	Vision_SetMode(3);	//提前切换模式
+	Delay_ms(1000);
 
 	
 	
@@ -366,7 +374,9 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(200);
 	Arm_QH(15000);
-	Delay_ms(1200);
+	Delay_ms(200);
+	Vision_SetMode(3);	//提前切换模式
+	Delay_ms(1000);
 	
 	
 	
@@ -390,7 +400,9 @@ void test_run2(void)
 	Delay_ms(1100);
 	Adjust(180);
 	Move_QH(11500);
-	Delay_ms(1900);
+	Delay_ms(900);
+	Vision_SetMode(2);	//提前切换模式
+	Delay_ms(1000);
 	
 	
 	//准备原料区第二次取料
@@ -413,7 +425,9 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(300);
 	Arm_QH(15000);
-	Delay_ms(1800);
+	Delay_ms(800);
+	Vision_SetMode(3);	//提前切换模式
+	Delay_ms(1000);
 
 	
 	
@@ -435,7 +449,9 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(200);
 	Arm_QH(15000);
-	Delay_ms(1200);
+	Delay_ms(200);
+	Vision_SetMode(5);	//提前切换模式
+	Delay_ms(1000);
 	
 	
 	
@@ -669,7 +685,7 @@ uint8_t put_first(void)
 			return 0;
 		}
 		Vision_Read_Ring();
-		if (orient()) break;
+		if (orient1()) break;
 	}
 	Vision_SetMode(4);
 
@@ -724,7 +740,7 @@ uint8_t put_second(void)
 			return 0;
 		}
 		Vision_Read_Ring();
-		if (orient()) break;
+		if (orient1()) break;
 	}
 	Vision_SetMode(4);
 
@@ -813,7 +829,7 @@ uint8_t put_third(void)
 			return 0;
 		}
 		Vision_Read_Ring();
-		if (orient()) break;
+		if (orient2()) break;
 	}
 	Vision_SetMode(4);
 
@@ -1062,11 +1078,11 @@ void catch_11(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘1号
 	Arm_QH(V1_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V1_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1099,11 +1115,11 @@ void catch_12(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘2号
 	Arm_QH(V2_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V2_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1136,11 +1152,11 @@ void catch_13(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘3号
 	Arm_QH(V3_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V3_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1173,11 +1189,11 @@ void catch_21(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘1号
 	Arm_QH(V1_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V1_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1210,11 +1226,11 @@ void catch_22(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘2号
 	Arm_QH(V2_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V2_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1247,11 +1263,11 @@ void catch_23(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘3号
 	Arm_QH(V3_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V3_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1284,11 +1300,11 @@ void catch_31(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘1号
 	Arm_QH(V1_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V1_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1321,11 +1337,11 @@ void catch_32(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘2号
 	Arm_QH(V2_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V2_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1358,11 +1374,11 @@ void catch_33(void)
 	
 	//提起到一定高度
 	Arm_SX(SX_Lift_High);
-	Delay_ms(250);
+	Delay_ms(300);
 	
 	//爪子到料盘3号
 	Arm_QH(V3_QH);
-	Delay_ms(200);
+	Delay_ms(150);
 	Arm_Turn(V3_Turn);
 	Delay_ms(200);
 	Arm_SX(V_SX);
@@ -1407,7 +1423,7 @@ void put1(void)
 	
 	//放
 	Servo_Write(Claw_Open);
-	Delay_ms(100);
+	Delay_ms(150);
 	
 	//爪子提起来
 	Arm_SX(SX_Lift_High);
@@ -1444,7 +1460,7 @@ void put2(void)
 	
 	//放
 	Servo_Write(Claw_Open);
-	Delay_ms(100);
+	Delay_ms(150);
 	
 	//爪子提起来
 	Arm_SX(SX_Lift_High);
@@ -1481,7 +1497,7 @@ void put3(void)
 	
 	//放
 	Servo_Write(Claw_Open);
-	Delay_ms(100);
+	Delay_ms(150);
 	
 	//爪子提起来
 	Arm_SX(SX_Lift_High);

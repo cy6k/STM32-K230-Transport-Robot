@@ -15,7 +15,15 @@
 #include <limits.h>
 #include <math.h>
 
-#define orient_range 3					//放置物料到圆环的像素误差允许范围
+
+#define orient1_range 1					//第一层放置物料到圆环的像素误差允许范围
+
+#define orient2_range 3					//叠放物料到圆环的像素误差允许范围
+
+#define orient1_angle 0.05f				//第一层放置物料到圆环的角度误差允许范围
+
+#define orient2_angle 0.10f				//叠放物料到圆环的角度误差允许范围
+
 
 static uint8_t visionMode = 0;
 static uint8_t qrConfirmCount = 0;
@@ -26,7 +34,7 @@ static uint8_t orientActive = 0;     /* 模式3、5开启一轮圆环定位，�
 static uint8_t ringUpdated = 0;      /* 仅在解析到新的合法圆环帧时置位。 */
 static uint8_t orientStage = 0;     /* 0=首次平移，1=复核朝向，2=复核新视觉帧。 */
 static uint32_t orientMotionTick = 0; /* 修正结束时间，只使用此后收到的角度帧。 */
-static uint8_t ringConfirmCount = 0; /* 连续两帧两轴均在±orient_range内才确认到位。 */
+static uint8_t ringConfirmCount = 0; /* 连续三帧两轴均在对应模式的像素范围内才确认到位。 */
 uint8_t QR_Data[4][3];
 int32_t Material_Data[3];
 int32_t Ring_Data[2];
@@ -193,21 +201,23 @@ uint8_t Vision_Read_material_now(void)
     return updated;
 }
 
-/* 模式3/5非阻塞接收：圆环与摄像头准星的差值(x,y)。
- * 完整帧到达就处理；未识别时K230不发数据，这里直接返回，不重复打印旧值。
- * 两个坐标均为带符号32位整数，整帧合法后再更新Ring_Data并从数组打印。
+/* 模式3/5接收圆环偏差(x,y)。
+ * x、y为带符号32位像素偏差，整帧合法后保存、打印。
+ * 无完整帧直接返回，错误帧不覆盖旧数据。
  */
 uint8_t Vision_Read_Ring(void)
 {
     static char packet[VISION_PACKET_SIZE];
-    char printText[32]; /* 两个32位坐标、标点和字符串结束符最多26字节 */
+    char printText[32]; /* 保存两个坐标、标点和字符串结束符。 */
     char *text, *end;
     int32_t data[2];
+    int32_t range;
     long value;
     int8_t result;
     uint8_t i, valid, updated = 0;
 
     if (visionMode != 3 && visionMode != 5) return 0;
+    range = (visionMode == 3) ? orient1_range : orient2_range;
 
     while ((result = VisionSerial_ReceivePacket(packet)) == 1)
     {
@@ -253,10 +263,10 @@ uint8_t Vision_Read_Ring(void)
 
         memcpy(Ring_Data, data, sizeof(Ring_Data));
         /* 在解析处逐帧确认，避免缓冲中的超差帧被后续帧覆盖。 */
-        if (Ring_Data[0] >= -orient_range && Ring_Data[0] <= orient_range &&
-            Ring_Data[1] >= -orient_range && Ring_Data[1] <= orient_range)
+        if (Ring_Data[0] >= -range && Ring_Data[0] <= range &&
+            Ring_Data[1] >= -range && Ring_Data[1] <= range)
         {
-            if (ringConfirmCount < 2) ringConfirmCount++;
+            if (ringConfirmCount < 3) ringConfirmCount++;
         }
         else ringConfirmCount = 0;
         ringUpdated = 1;
@@ -270,7 +280,7 @@ uint8_t Vision_Read_Ring(void)
 }
 
 /* 模式2定位：只用首个有效帧，先左右、再前后调用Move修正一次，速度3000，加速档位40。
- * 实测换算：Move_ZY(-200)使x减小62，Move_QH(200)使y减小66。
+ * 整车定位实测拟合：左右每200脉冲约65.5像素，前后每200脉冲约67.7像素，方向不变。
  * 每轴非零偏差均按100%误差换算修正脉冲；完成本轮修正即结束，不复检x、y。
  * 不使用到位检测，每轴按Move返回的理论时间加20ms延时；保留修正期间的接收帧，完成后只等z变化。
  * 定位结束不切换视觉模式，后续仍由 Vision_Read_material() 接收、打印。 */
@@ -284,8 +294,8 @@ uint8_t Locate(void)
     if (visionMode != 2 || !locateActive || !materialUpdated) return 0;
     materialUpdated = 0; /* 同一帧只用于一次纠偏，没收到新帧就不继续运动。 */
 
-    zy = -(float)Material_Data[0] * (200.0f / 62.0f);
-    qh = (float)Material_Data[1] * (200.0f / 66.0f);
+    zy = -(float)Material_Data[0] * (200.0f / 65.5f);
+    qh = (float)Material_Data[1] * (200.0f / 67.7f);
     if (fabs((double)zy) > (double)LONG_MAX || fabs((double)qh) > (double)LONG_MAX)
     {
         VisionSerial_ResetReceiver();
@@ -315,24 +325,24 @@ uint8_t Locate(void)
     return 1;
 }
 
-/* 模式3/5圆环定位：先左右、再前后修正，再用新角度帧校准到最近的90度整数倍。
- * 实测Move_ZY(400)使x减小37，Move_QH(400)使y增大37；按100%误差换算。
+/* 模式3圆环定位：先左右、再前后修正，再用新角度帧校准到最近的90度整数倍。
+ * 实测拟合：左右每400脉冲约37像素，前后约39.3像素；按100%误差换算。
  * 平移速度3000、加速档位30，每轴按Move返回的理论时间加20ms延时。
  * 朝向修正后清除旧视觉帧，重新检查x、y；超差则继续平移、校准朝向。
- * 新角度误差在±0.1度内，且之后连续两帧x、y均在±orient_range内，才结束定位。
+ * 新角度误差在±orient1_angle度内，且之后连续三帧x、y均在±orient1_range内，才结束定位。
  */
-uint8_t orient(void)
+uint8_t orient1(void)
 {
     float qh, zy, yaw, target, error;
     uint32_t timeMs, frameTick, now;
     char printText[40];
     uint8_t addr, inRange;
 
-    if ((visionMode != 3 && visionMode != 5) || !orientActive) return 0;
+    if (visionMode != 3 || !orientActive) return 0;
     if (orientStage != 1 && !ringUpdated) return 0;
 
-    inRange = (Ring_Data[0] >= -orient_range && Ring_Data[0] <= orient_range &&
-               Ring_Data[1] >= -orient_range && Ring_Data[1] <= orient_range);
+    inRange = (Ring_Data[0] >= -orient1_range && Ring_Data[0] <= orient1_range &&
+               Ring_Data[1] >= -orient1_range && Ring_Data[1] <= orient1_range);
     if (orientStage == 1 || (orientStage == 2 && inRange))
     {
         if (HWT101_ConfigBusy() || !HWT101_YawSnapshot(&yaw, &frameTick)) return 0;
@@ -349,9 +359,9 @@ uint8_t orient(void)
         if (error > 180.0f) error -= 360.0f;
         if (error < -180.0f) error += 360.0f;
 
-        if (error > 0.1f || error < -0.1f)
+        if (error > orient1_angle || error < -orient1_angle)
         {
-            Adjust(target);
+            Adjust_Range(target, orient1_angle);
             // Adjust异常或超时也会返回，必须另取停止后的新角度确认。
             orientStage = 1;
             orientMotionTick = GetTick();
@@ -370,7 +380,7 @@ uint8_t orient(void)
         }
 
         ringUpdated = 0;
-        if (ringConfirmCount < 2) return 0;
+        if (ringConfirmCount < 3) return 0;
         orientActive = 0;
         /* 位置与朝向均合格，仅停止底盘四轮，机械臂不受影响。 */
         for (addr = 1; addr <= 4; addr++)
@@ -386,19 +396,114 @@ uint8_t orient(void)
 
     ringUpdated = 0;
     zy = (float)Ring_Data[0] * (400.0f / 37.0f);
-    qh = -(float)Ring_Data[1] * (400.0f / 37.0f);
+    qh = -(float)Ring_Data[1] * (400.0f / 39.3f);
     if (fabs((double)zy) > (double)LONG_MAX || fabs((double)qh) > (double)LONG_MAX)
     {
         VisionSerial_ResetReceiver();
         return 0;
     }
 
-    if (Ring_Data[0] > orient_range || Ring_Data[0] < -orient_range)
+    if (Ring_Data[0] > orient1_range || Ring_Data[0] < -orient1_range)
     {
         timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 30);
         Delay_ms(timeMs + 20);
     }
-    if (Ring_Data[1] > orient_range || Ring_Data[1] < -orient_range)
+    if (Ring_Data[1] > orient1_range || Ring_Data[1] < -orient1_range)
+    {
+        timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 30);
+        Delay_ms(timeMs + 20);
+    }
+    orientStage = 1;
+    orientMotionTick = GetTick();
+    ringConfirmCount = 0;
+    VisionSerial_ResetReceiver(); // 平移后先复核朝向，不用运动期间的旧帧确认到位。
+    return 0;
+}
+
+/* 模式5圆环定位：先左右、再前后修正，再用新角度帧校准到最近的90度整数倍。
+ * 实测拟合：左右每400脉冲约37像素，前后约39.3像素；按100%误差换算。
+ * 平移速度3000、加速档位30，每轴按Move返回的理论时间加20ms延时。
+ * 朝向修正后清除旧视觉帧，重新检查x、y；超差则继续平移、校准朝向。
+ * 新角度误差在±orient2_angle度内，且之后连续三帧x、y均在±orient2_range内，才结束定位。
+ */
+uint8_t orient2(void)
+{
+    float qh, zy, yaw, target, error;
+    uint32_t timeMs, frameTick, now;
+    char printText[40];
+    uint8_t addr, inRange;
+
+    if (visionMode != 5 || !orientActive) return 0;
+    if (orientStage != 1 && !ringUpdated) return 0;
+
+    inRange = (Ring_Data[0] >= -orient2_range && Ring_Data[0] <= orient2_range &&
+               Ring_Data[1] >= -orient2_range && Ring_Data[1] <= orient2_range);
+    if (orientStage == 1 || (orientStage == 2 && inRange))
+    {
+        if (HWT101_ConfigBusy() || !HWT101_YawSnapshot(&yaw, &frameTick)) return 0;
+        now = GetTick();
+        if ((uint32_t)(now - frameTick) > 200U ||
+            (int32_t)(frameTick - orientMotionTick) <= 0) return 0;
+
+        // 选择最近的直角方向，180与-180按同一朝向处理。
+        if (yaw >= 135.0f || yaw < -135.0f) target = 180.0f;
+        else if (yaw >= 45.0f) target = 90.0f;
+        else if (yaw < -45.0f) target = -90.0f;
+        else target = 0.0f;
+        error = target - yaw;
+        if (error > 180.0f) error -= 360.0f;
+        if (error < -180.0f) error += 360.0f;
+
+        if (error > orient2_angle || error < -orient2_angle)
+        {
+            Adjust_Range(target, orient2_angle);
+            // Adjust异常或超时也会返回，必须另取停止后的新角度确认。
+            orientStage = 1;
+            orientMotionTick = GetTick();
+            ringUpdated = 0;
+            ringConfirmCount = 0;
+            VisionSerial_ResetReceiver();
+            return 0;
+        }
+        if (orientStage == 1)
+        {
+            orientStage = 2;
+            ringUpdated = 0;
+            ringConfirmCount = 0;
+            VisionSerial_ResetReceiver(); // 朝向合格后，等待新视觉帧复核。
+            return 0;
+        }
+
+        ringUpdated = 0;
+        if (ringConfirmCount < 3) return 0;
+        orientActive = 0;
+        /* 位置与朝向均合格，仅停止底盘四轮，机械臂不受影响。 */
+        for (addr = 1; addr <= 4; addr++)
+        {
+            Emm_V5_Stop_Now(addr, false);
+            Delay_ms(1);
+        }
+        sprintf(printText, "orient OK, time: %lu ms\r\n",
+                (unsigned long)(GetTick() - calibrateStartTick));
+        Serial_PrintStr(printText);
+        return 1;
+    }
+
+    ringUpdated = 0;
+    zy = (float)Ring_Data[0] * (400.0f / 37.0f);
+    qh = -(float)Ring_Data[1] * (400.0f / 39.3f);
+    if (fabs((double)zy) > (double)LONG_MAX || fabs((double)qh) > (double)LONG_MAX)
+    {
+        VisionSerial_ResetReceiver();
+        return 0;
+    }
+
+    if (Ring_Data[0] > orient2_range || Ring_Data[0] < -orient2_range)
+    {
+        timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 30);
+        Delay_ms(timeMs + 20);
+    }
+    if (Ring_Data[1] > orient2_range || Ring_Data[1] < -orient2_range)
     {
         timeMs = Move(qh > 0 ? 0 : 180, (long)fabs((double)qh), 3000, 30);
         Delay_ms(timeMs + 20);

@@ -17,6 +17,9 @@
 #include "Emm_V5.h"
 #include "Timer.h"		/* 用 GetTick() 做非阻塞计时 */
 
+#define Adjust_range 0.1f		//Adjust()校准误差允许范围(度)
+
+
 /* ===================== 引脚 / 串口配置(要改就改这一段) ===================== */
 #define HWT101_GPIO_PORT		GPIOD
 #define HWT101_GPIO_CLK			RCC_AHB1Periph_GPIOD
@@ -503,11 +506,17 @@ void USART3_IRQHandler(void)
 
 
 /* 旋转并校准到相对上电稳定零点的目标角度，范围 -180～180 度。
- * 先按实时角度计算最短转向；偏差大于5度时一次粗转，再相对细调至 ±0.1 度。
+ * 先按实时角度计算最短转向；偏差大于5度时一次粗转，再相对细调至指定的 ±angle_range 度。
  * 例如当前180度、目标-90度，误差折算为+90度，不会反向绕转270度。
  * 粗转、细调均按实际脉冲计算理论延时，不加余量；随后读取新角度帧。
  */
 void Adjust(float target_angle)
+{
+    Adjust_Range(target_angle, Adjust_range);
+}
+
+/* 按调用方指定的角度误差范围执行转向校准。 */
+void Adjust_Range(float target_angle, float angle_range)
 {
     uint32_t start, frame_tick, now, motion_tick = 0;
     float yaw, error;
@@ -517,6 +526,11 @@ void Adjust(float target_angle)
     if (!(target_angle >= -180.0f && target_angle <= 180.0f))
     {
         Serial_PrintStr("Adjust: target must be -180..180\r\n");
+        return;
+    }
+    if (!(angle_range > 0.0f && angle_range <= 180.0f))
+    {
+        Serial_PrintStr("Adjust: range must be >0..180\r\n");
         return;
     }
     if (HWT101_ConfigBusy())
@@ -551,7 +565,7 @@ void Adjust(float target_angle)
 
         /* yaw已减去上电基准；将目标与实时角度的差折算为最短的 ±180 度。 */
         error = HWT101_Wrap180(target_angle - yaw);
-        if (error >= -0.1f && error <= 0.1f)
+        if (error >= -angle_range && error <= angle_range)
         {
             Serial_PrintStr("Adjust OK\r\n");
             break;
