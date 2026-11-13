@@ -10,6 +10,7 @@ extern uint8_t QR_Data[4][3];
 
 /* 料盘：[x偏差,y偏差,颜色1~6]；模式2清零，z=0表示尚无有效数据。 */
 extern int32_t Material_Data[3];
+extern long Locate_ZY; /* 本轮左右修正脉冲；模式2清零，取料后反向补回。 */
 
 /* 圆环：[x偏差,y偏差]；模式3/5清零，初始零值不代表识别成功。 */
 extern int32_t Ring_Data[2];

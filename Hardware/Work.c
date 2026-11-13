@@ -27,7 +27,7 @@
 
 
 //车身料盘参数
-#define V_SX		-10250		// 车身取放高度
+#define V_SX		-10300		// 车身取放高度
 
 #define V1_Turn		-1380		// 车身1号转角
 #define V1_QH		4000		// 车身1号前后位置
@@ -57,14 +57,14 @@
 #define R_SX_2		-13600		// 圆环叠放高度
 
 
-#define R1_Turn		-1675		// 圆环1号转角
-#define R1_QH		19500		// 圆环1号前后位置
+#define R1_Turn		-1660		// 圆环1号转角
+#define R1_QH		19650		// 圆环1号前后位置
 
-#define R2_Turn		-65			// 圆环2号转角
-#define R2_QH		14300		// 圆环2号前后位置
+#define R2_Turn		-60		// 圆环2号转角
+#define R2_QH		14450		// 圆环2号前后位置
 
 #define R3_Turn		1615		// 圆环3号转角
-#define R3_QH		17800		// 圆环3号前后位置
+#define R3_QH		17850		// 圆环3号前后位置
 
 
 
@@ -72,6 +72,7 @@
 void test_run1(void)
 {
 	uint32_t start;
+	
 
 	//出
 	Move_ZY(450);
@@ -127,6 +128,8 @@ void test_run1(void)
 	
 	//从转盘上抓物料
 	catch_first();
+	Move_ZY(-Locate_ZY);				//补回取料定位的左右位移
+	Delay_ms(Move_TimeMs(-Locate_ZY) + 10);
 	
 	
 	
@@ -203,6 +206,8 @@ void test_run1(void)
 	
 	//原料区第二次取料
 	catch_second();
+	Move_ZY(-Locate_ZY);				//补回取料定位的左右位移
+	Delay_ms(Move_TimeMs(-Locate_ZY) + 10);
 	
 	
 	//再到粗加工区
@@ -335,6 +340,8 @@ void test_run2(void)
 	
 	//从转盘上抓物料
 	catch_first();
+	Move_ZY(-Locate_ZY);				//补回取料定位的左右位移
+	Delay_ms(Move_TimeMs(-Locate_ZY) + 10);
 	
 	
 	
@@ -413,6 +420,8 @@ void test_run2(void)
 	
 	//原料区第二次取料
 	catch_second();
+	Move_ZY(-Locate_ZY);				//补回取料定位的左右位移
+	Delay_ms(Move_TimeMs(-Locate_ZY) + 10);
 	
 	
 	//再到粗加工区

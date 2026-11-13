@@ -20,7 +20,7 @@
 
 #define orient2_range 3					//叠放物料到圆环的像素误差允许范围
 
-#define orient1_angle 0.05f				//第一层放置物料到圆环的角度误差允许范围
+#define orient1_angle 0.10f				//第一层放置物料到圆环的角度误差允许范围
 
 #define orient2_angle 0.10f				//叠放物料到圆环的角度误差允许范围
 
@@ -38,6 +38,7 @@ static uint8_t ringConfirmCount = 0; /* 连续三帧两轴均在对应模式的�
 uint8_t QR_Data[4][3];
 int32_t Material_Data[3];
 int32_t Ring_Data[2];
+long Locate_ZY = 0; // 本轮料盘定位的左右修正脉冲，带方向
 
 /* 1：二维码；2：料盘；3：粗加工区圆环；4：休息；5：备用圆环（开灯）。
  * 分别发送@m1FFF、@m2FFF、@m3FFF、@m4FFF、@m5FFF，不附加换行。
@@ -62,7 +63,11 @@ void Vision_SetMode(uint8_t mode)
         memset(QR_Data, 0, sizeof(QR_Data));
         qrConfirmCount = 0;
     }
-    if (mode == 2) memset(Material_Data, 0, sizeof(Material_Data));
+    if (mode == 2)
+    {
+        memset(Material_Data, 0, sizeof(Material_Data));
+        Locate_ZY = 0;
+    }
     if (mode == 3 || mode == 5) memset(Ring_Data, 0, sizeof(Ring_Data));
     visionMode = mode;
     locateActive = (mode == 2);
@@ -305,6 +310,7 @@ uint8_t Locate(void)
     if (Material_Data[0] != 0)
     {
         timeMs = Move(zy > 0 ? 90 : -90, (long)fabs((double)zy), 3000, 40);
+        Locate_ZY = (long)zy;
         Delay_ms(timeMs + 20);
     }
     if (Material_Data[1] != 0)
