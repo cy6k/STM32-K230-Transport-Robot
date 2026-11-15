@@ -197,9 +197,9 @@ void test(void)
 			put1();
 			put2();
 			put3();
-			grap1();
-			grap2();
-			grap3();
+//			grap1();
+//			grap2();
+//			grap3();
 			
 			break;
 

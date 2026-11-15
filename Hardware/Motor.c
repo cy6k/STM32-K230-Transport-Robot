@@ -197,14 +197,13 @@ void Move_slant2(long mcs)
   *           speed —— 最快轮速度(RPM)，范围1~5000
   *           acceleration —— 加速档位0~255，0为直接启动
   * 返 回 值：四轮运动的理论用时(ms)，不加余量；未发令返回0
-  * 备    注：参数非法或四轮换算超出long范围时不发令；四轮按位移比分配速度和加速档位
+  * 备    注：参数非法或四轮换算超出long范围时不发令；四轮按位移比分配速度，加速档位保持调用方设定
   */
 uint32_t Move(float angle, long mcs, uint16_t speed, uint8_t acceleration)
 {
 	long delta[2];
-	uint32_t pulses[2], maxPulse = 0, minPulse, timeMs = 0, wheelTime;
-	uint16_t vel[2], rampStep;
-	uint8_t acc[2];
+	uint32_t pulses[2], maxPulse = 0, timeMs = 0, wheelTime;
+	uint16_t vel[2];
 	uint8_t i, addr;
 	double radians, qh, zy, value;
 
@@ -225,39 +224,24 @@ uint32_t Move(float angle, long mcs, uint16_t speed, uint8_t acceleration)
 	}
 	if (maxPulse == 0) return 0;
 
-	// Emm V5每增加1RPM需(256-acc)*50us，慢轮的加速间隔应按位移比增大。
-	minPulse = (pulses[0] < pulses[1]) ? pulses[0] : pulses[1];
-	if (minPulse == 0) minPulse = maxPulse;
-	value = floor(255.0 * minPulse / maxPulse);
-	if (value < 1.0) value = 1.0;
-	rampStep = 256U - acceleration;
-	// 慢轮所需间隔超出255档时，同时缩短快轮间隔，避免只限制慢轮而破坏比例。
-	if (value < rampStep) rampStep = (uint16_t)value;
-
+	// 只按位移比分配轮速，不为同步到位而提高调用方指定的加速档位。
 	for (i = 0; i < 2; i++)
 	{
 		vel[i] = (uint16_t)((double)speed * pulses[i] / maxPulse + 0.5);
 		if (vel[i] == 0) vel[i] = 1;
-		acc[i] = acceleration;
-		if (acceleration != 0 && pulses[i] != 0)
-		{
-			value = floor((double)rampStep * maxPulse / pulses[i] + 0.5);
-			if (value > 255.0) value = 255.0;
-			acc[i] = (uint8_t)(256U - (uint16_t)value);
-		}
 	}
 
 	for (i = 0; i < 2; i++)
 	{
-		wheelTime = Wheel_TimeMs(pulses[i], vel[i], acc[i]);
+		wheelTime = Wheel_TimeMs(pulses[i], vel[i], acceleration);
 		if (wheelTime > timeMs) timeMs = wheelTime;
 	}
 
-	// shortcut: 加速档位为整数，极小轮速比只能近似同步；更高轨迹精度需统一轨迹控制。
+	// shortcut: 同档加减速只保证同步启动，轨迹可能弯曲；严格直线运动需统一轨迹控制。
 	for (addr = 1; addr <= 4; addr++)
 	{
 		i = (uint8_t)((addr - 1) % 2);
-		Wheel_Move(addr, delta[i], vel[i], acc[i], 1);
+		Wheel_Move(addr, delta[i], vel[i], acceleration, 1);
 		Delay_ms(1);
 	}
 	Emm_V5_Synchronous_motion(0);

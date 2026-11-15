@@ -57,15 +57,17 @@
 #define R_SX_2		-13600		// 圆环叠放高度
 
 
-#define R1_Turn		-1660		// 圆环1号转角
-#define R1_QH		19650		// 圆环1号前后位置
+#define R1_Turn		-1670		// 圆环1号转角
+#define R1_QH		19580		// 圆环1号前后位置
 
-#define R2_Turn		-60		// 圆环2号转角
+#define R2_Turn		-60			// 圆环2号转角
 #define R2_QH		14450		// 圆环2号前后位置
 
 #define R3_Turn		1615		// 圆环3号转角
-#define R3_QH		17850		// 圆环3号前后位置
+#define R3_QH		17920		// 圆环3号前后位置
 
+
+#define Catch_Data  1000		//任务命题修改数据修正距离
 
 
 //左出发，无障碍
@@ -75,8 +77,8 @@ void test_run1(void)
 	
 
 	//出
-	Move_ZY(450);
-	Delay_ms(400);
+	Move_ZY(680);
+	Delay_ms(Move_TimeMs(680) + 10);
 	Move_slant1(2000);
 	Delay_ms(1100);
 	Adjust(0);
@@ -90,7 +92,7 @@ void test_run1(void)
 	Adjust(90);
 	Move_QH(23000);
 	Delay_ms(1000);
-	Arm_Turn(1500);
+	Arm_Turn(1500);			//扫描二维码角度
 	Delay_ms(100);
 	Vision_SetMode(1);
 	Delay_ms(400);
@@ -125,12 +127,21 @@ void test_run1(void)
 	Adjust(-90);
 	
 	
+	//任务命题中转盘移动，底盘同时移动相同距离修正
+	Move_ZY(Catch_Data);
+	Delay_ms(Move_TimeMs(Catch_Data) + 10);
+	Adjust(-90);
+	
 	
 	//从转盘上抓物料
 	catch_first();
 	Move_ZY(-Locate_ZY);				//补回取料定位的左右位移
 	Delay_ms(Move_TimeMs(-Locate_ZY) + 10);
 	
+	
+	//底盘退回原路线
+	Move_ZY(-Catch_Data);
+	Delay_ms(Move_TimeMs(-Catch_Data) + 10);
 	
 	
 	//到粗加工区
@@ -198,16 +209,28 @@ void test_run1(void)
 	Delay_ms(1000);
 	
 	
+	
 	//准备原料区第二次取料
 	Adjust(-90);
 	Move_QH(-200);
 	Delay_ms(300);
 	
 	
+	//任务命题中转盘移动，底盘同时移动相同距离修正
+	Move_ZY(Catch_Data);
+	Delay_ms(Move_TimeMs(Catch_Data) + 10);
+	Adjust(-90);
+	
+	
 	//原料区第二次取料
 	catch_second();
 	Move_ZY(-Locate_ZY);				//补回取料定位的左右位移
 	Delay_ms(Move_TimeMs(-Locate_ZY) + 10);
+	
+	
+	//底盘退回原路线
+	Move_ZY(-Catch_Data);
+	Delay_ms(Move_TimeMs(-Catch_Data) + 10);
 	
 	
 	//再到粗加工区
@@ -274,7 +297,7 @@ void test_run1(void)
 	Arm_Turn(2100);
 	Delay_ms(1900);
 	Adjust(0);
-	Move_slant1(-2200);
+	Move_slant1(-2100);
 	Delay_ms(1500);
 	HWT101_ReadAndPrint();
 	
@@ -300,7 +323,7 @@ void test_run2(void)
 	Delay_ms(100);
 	Vision_SetMode(1);
 	Delay_ms(400);
-	Arm_Turn(1500);
+	Arm_Turn(1500);		//扫描二维码角度
 	Delay_ms(100);
 	Arm_SX(-2500);
 	Delay_ms(500);
@@ -338,11 +361,20 @@ void test_run2(void)
 	Adjust(-90);
 	
 	
+	//任务命题中转盘移动，底盘同时移动相同距离修正
+	Move_ZY(Catch_Data);
+	Delay_ms(Move_TimeMs(Catch_Data) + 10);
+	Adjust(-90);
+	
 	//从转盘上抓物料
 	catch_first();
 	Move_ZY(-Locate_ZY);				//补回取料定位的左右位移
 	Delay_ms(Move_TimeMs(-Locate_ZY) + 10);
 	
+	
+	//底盘退回原路线
+	Move_ZY(-Catch_Data);
+	Delay_ms(Move_TimeMs(-Catch_Data) + 10);
 	
 	
 	//到粗加工区
@@ -387,8 +419,6 @@ void test_run2(void)
 	
 	
 	
-	
-	
 	//放物料到暂存区
 	Adjust(180);
 	put_first();
@@ -418,10 +448,22 @@ void test_run2(void)
 	Delay_ms(300);
 	
 	
+	//任务命题中转盘移动，底盘同时移动相同距离修正
+	Move_ZY(Catch_Data);
+	Delay_ms(Move_TimeMs(Catch_Data) + 10);
+	Adjust(-90);
+	
+	
 	//原料区第二次取料
 	catch_second();
 	Move_ZY(-Locate_ZY);				//补回取料定位的左右位移
 	Delay_ms(Move_TimeMs(-Locate_ZY) + 10);
+	
+	
+	
+	//底盘退回原路线
+	Move_ZY(-Catch_Data);
+	Delay_ms(Move_TimeMs(-Catch_Data) + 10);
 	
 	
 	//再到粗加工区
@@ -482,7 +524,7 @@ void test_run2(void)
 	Arm_Turn(0);
 	Delay_ms(1800);
 	Adjust(90);
-	Move_QH(10800);
+	Move_QH(11000);
 	Delay_ms(100);
 	Arm_Turn(2100);
 	Delay_ms(1700);
