@@ -179,27 +179,14 @@ void test(void)
 			break;
 			
 			
-			
+			//≤‚ ‘≤Œ ˝
 			case 't':
 			Serial_PrintStr("Test Start \r\n");
-/*			catch_11();
-			catch_22();
-			catch_33();
-			catch_12();
-			catch_23();
-			catch_31();
-			catch_13();
-			catch_21();
-			catch_32();
-*/
+
 //			TJC_Test();
-			
 			put1();
 			put2();
 			put3();
-//			grap1();
-//			grap2();
-//			grap3();
 			
 			break;
 
