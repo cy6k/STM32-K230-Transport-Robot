@@ -40,12 +40,12 @@ int main(void)
 	Delay_ms(400);						// 加上已有 600ms 延时，等待屏幕上电约 1 秒
 	TJC_SetPage(0);
 	
-	Delay_ms(6000);
+	Delay_ms(500);
 	HWT_Read_Angle();					//其他初始化完成后调用，等待角度稳定并记录为零点
 	Serial_PrintStr("Waiting for work \r\n");
 	Servo_Write(55);					//所有任务初始化完成后，打开爪子，标志可以开始工作
 	
-	Delay_ms(500);						//爪子张开后500ms，再回到范围内
+	Delay_ms(500);						//爪子张开后,机械臂转到规定范围内
 	Arm_Turn(2100);
 	
 	
